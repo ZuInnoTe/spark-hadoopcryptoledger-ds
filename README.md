@@ -9,7 +9,7 @@ Currently this datasource supports the following formats of the HadoopCryptoLedg
 This datasource will be soon available on https://spark-packages.org/ and Maven Central.
 
 # Options
-The following options are mapped to the following Hadoop-options ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
+The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
 * "magic" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.filter.magic"
 * "maxblockSize" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.maxblocksize"
 * "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"

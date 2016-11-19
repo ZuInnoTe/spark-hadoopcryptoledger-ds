@@ -74,3 +74,69 @@ CREATE TABLE BitcoinBlockchain
 USING  org.zuinnote.spark.bitcoin.block
 OPTIONS (path "/home/user/bitcoin/input", magic "F9BEB4D9")
 ```
+
+# Schemas
+## Format: org.zuinnote.spark.bitcoin.block
+```
+root
+ |-- blockSize: integer (nullable = false)
+ |-- magicNo: integer (nullable = false)
+ |-- version: integer (nullable = false)
+ |-- time: integer (nullable = false)
+ |-- bits: binary (nullable = false)
+ |-- nonce: integer (nullable = false)
+ |-- transactionCounter: long (nullable = false)
+ |-- hashPrevBlock: binary (nullable = false)
+ |-- hashMerkleRoot: binary (nullable = false)
+ |-- transactions: array (nullable = false)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- version: integer (nullable = false)
+ |    |    |-- inCounter: binary (nullable = false)
+ |    |    |-- outCounter: binary (nullable = false)
+ |    |    |-- listOfInputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = false)
+ |    |    |    |    |-- prevTransactionHash: binary (nullable = false)
+ |    |    |    |    |-- previousTxOutIndex: long (nullable = false)
+ |    |    |    |    |-- txInScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txInScript: binary (nullable = false)
+ |    |    |    |    |-- seqNo: long (nullable = false)
+ |    |    |-- listOfOutputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = false)
+ |    |    |    |    |-- value: long (nullable = false)
+ |    |    |    |    |-- txOutScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txOutScript: binary (nullable = false)
+ |    |    |-- lockTime: integer (nullable = false)
+
+```
+## Format: org.zuinnote.spark.bitcoin.transaction
+```
+root
+ |-- currentTransactionHash: binary (nullable = false)
+ |-- version: integer (nullable = false)
+ |-- inCounter: binary (nullable = false)
+ |-- outCounter: binary (nullable = false)
+ |-- listOfInputs: array (nullable = false)
+ |    |-- element: struct (containsNull = false)
+ |    |    |-- prevTransactionHash: binary (nullable = false)
+ |    |    |-- previousTxOutIndex: long (nullable = false)
+ |    |    |-- txInScriptLength: binary (nullable = false)
+ |    |    |-- txInScript: binary (nullable = false)
+ |    |    |-- seqNo: long (nullable = false)
+ |-- listOfOutputs: array (nullable = false)
+ |    |-- element: struct (containsNull = false)
+ |    |    |-- value: long (nullable = false)
+ |    |    |-- txOutScriptLength: binary (nullable = false)
+ |    |    |-- txOutScript: binary (nullable = false)
+ |-- lockTime: integer (nullable = false)
+```
+## Format: org.zuinnote.spark.bitcoin.transactionelement
+```
+root
+ |-- blockHash: binary (nullable = false)
+ |-- transactionIdxInBlock: integer (nullable = false)
+ |-- transactionHash: binary (nullable = false)
+ |-- type: integer (nullable = false)
+ |-- indexInTransaction: long (nullable = false)
+ |-- amount: long (nullable = false)
+ |-- script: binary (nullable = false)
+ ```

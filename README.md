@@ -67,6 +67,14 @@ sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
  ```
+## Python
+This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+```
+from pyspark.sql import SQLContext
+sqlContext = SQLContext(sc)
+
+df = sqlContext.read.format('org.zuinnote.spark.bitcoin.block').options(magic='F9BEB4D9').load('/home/user/bitcoin/input')
+```
 ## SQL
 The following statement creates a table that contains Bitcoin Blockchain data in the folder /home/user/bitcoin/input
 ```

@@ -12,9 +12,9 @@ scalacOptions += "-target:jvm-1.7"
 
 libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.0.2" % "compile"
 
-libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 
-libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.5.0" % "provided"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.0" % "provided"
 

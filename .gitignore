@@ -1,17 +1,17 @@
-*.class
-*.log
-
-# sbt specific
-.cache
-.history
-.lib/
-dist/*
+.gradle
+build/
 target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
+.idea
 
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+*~
+.git
+gradle.properties

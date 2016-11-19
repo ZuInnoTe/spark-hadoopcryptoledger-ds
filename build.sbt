@@ -2,9 +2,11 @@ lazy val root = (project in file(".")).
   settings(
     organization := "com.github.zuinnote",
     name := "spark-hadoopcryptoledger-ds",
-    version := "1.0.2",
-    scalaVersion := "2.10.4"
+    version := "1.0.2"
   )
+
+
+crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions += "-target:jvm-1.7"
 

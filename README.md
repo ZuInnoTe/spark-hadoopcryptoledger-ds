@@ -2,9 +2,9 @@
 A Spark datasource for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark 1.5.
 Currently this datasource supports the following formats of the HadoopCryptoLedger library:
 * Bitcoin Blockchain
-** Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
-** Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
-** Bitcoin TransactionElement Datasource format: org.zuinnote.spark.bitcoin.transactionelement
+ * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
+ * Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
+ * Bitcoin TransactionElement Datasource format: org.zuinnote.spark.bitcoin.transactionelement
 
 This datasource will be soon available on https://spark-packages.org/ and Maven Central.
 

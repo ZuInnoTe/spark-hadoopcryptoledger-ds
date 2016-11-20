@@ -45,7 +45,7 @@ val df = sqlContext.read
     .option("magic", "F9BEB4D9")
     .load("/home/user/bitcoin/input")
 ```
- The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/tree/master/examples/scala-spark-datasource-bitcoinblock
+ The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-DataSource
 ## Java
  This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
  ```

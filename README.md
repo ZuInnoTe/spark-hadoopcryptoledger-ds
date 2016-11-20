@@ -6,7 +6,7 @@ Currently this datasource supports the following formats of the HadoopCryptoLedg
  * Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
  * Bitcoin TransactionElement Datasource format: org.zuinnote.spark.bitcoin.transactionelement
 
-This datasource will be soon available on https://spark-packages.org/ and Maven Central.
+This datasource will be soon available on https://spark-packages.org/. It is [available](http://search.maven.org/#search%7Cga%7C1%7Chadoopcryptoledger) on Maven Central.
 
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
@@ -37,7 +37,7 @@ version: 1.0.2
 # Develop
 The following sections describe some example code. 
 ## Scala
- This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+ This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
  ```
 val sqlContext = new SQLContext(sc)
 val df = sqlContext.read
@@ -45,9 +45,9 @@ val df = sqlContext.read
     .option("magic", "F9BEB4D9")
     .load("/home/user/bitcoin/input")
 ```
- The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/tree/master/examples/scala-spark-datasource-bitcoinblock
+ The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-DataSource
 ## Java
- This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+ This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
  ```
 import org.apache.spark.sql.SQLContext
 
@@ -58,7 +58,7 @@ DataFrame df = sqlContext.read()
     .load("/home/user/bitcoin/input");
 ```
 ## R
- This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+ This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
 ```
 library(SparkR)
 
@@ -68,7 +68,7 @@ sqlContext <- sparkRSQL.init(sc)
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
  ```
 ## Python
-This example loads Bitcoin Blockhain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
 ```
 from pyspark.sql import SQLContext
 sqlContext = SQLContext(sc)

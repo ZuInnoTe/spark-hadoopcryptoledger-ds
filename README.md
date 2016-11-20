@@ -6,7 +6,7 @@ Currently this datasource supports the following formats of the HadoopCryptoLedg
  * Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
  * Bitcoin TransactionElement Datasource format: org.zuinnote.spark.bitcoin.transactionelement
 
-This datasource will be soon available on https://spark-packages.org/. It is [available}(http://search.maven.org/#search%7Cga%7C1%7Chadoopcryptoledger) on Maven Central.
+This datasource will be soon available on https://spark-packages.org/. It is [available](http://search.maven.org/#search%7Cga%7C1%7Chadoopcryptoledger) on Maven Central.
 
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):

@@ -28,7 +28,7 @@ import org.zuinnote.hadoop.bitcoin.format._
 
 
 
-package object bitcoinblock {
+package object bitcointransactionelement {
 
 /**
    * Adds a method, `bitcoinTransactionElementFile`, to SQLContext that allows reading Bitcoin blockchain data as Bitcoin transaction elements.

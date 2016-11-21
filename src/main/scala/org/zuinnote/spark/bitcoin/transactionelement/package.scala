@@ -34,7 +34,7 @@ package object bitcointransactionelement {
    * Adds a method, `bitcoinTransactionElementFile`, to SQLContext that allows reading Bitcoin blockchain data as Bitcoin transaction elements.
    */
 
- implicit class BitcoinBlockContext(sqlContext: SQLContext) extends Serializable{
+ implicit class BitcoinTransactionElementContext(sqlContext: SQLContext) extends Serializable{
 def bitcoinTransactionElementFile(
         filePath: String,
 	maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,

@@ -36,5 +36,5 @@ class DefaultSource15 extends DefaultSource with DataSourceRegister {
   /**
    * Short alias for hadoopcryptoledger BitcoinBlock data source.
    */
-  override def shortName(): String = "bitcointransactioneelement"
+  override def shortName(): String = "bitcointransactionelement"
 }

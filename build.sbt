@@ -2,15 +2,18 @@ lazy val root = (project in file(".")).
   settings(
     organization := "com.github.zuinnote",
     name := "spark-hadoopcryptoledger-ds",
-    version := "1.0.2"
+    version := "1.0.3"
   )
 
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions += "-target:jvm-1.7"
 
-libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.0.2" % "compile"
+libraryDependencies += "org.scala-lang" % "scala-library" % "2.11.7" % "provided"
+
+libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.0.3" % "compile"
 
 libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 

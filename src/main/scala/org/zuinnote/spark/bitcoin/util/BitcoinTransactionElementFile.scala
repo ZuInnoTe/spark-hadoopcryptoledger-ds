@@ -38,8 +38,7 @@ import org.zuinnote.hadoop.bitcoin.format._
 
 private[bitcoin] object BitcoinTransactionElementFile {
  
-  def load(context: SQLContext, location: String, hadoopConf: JobConf): RDD[(BytesWritable, BitcoinTransactionElement)] = {
-	FileInputFormat.addInputPath(hadoopConf, new Path(location));
-	context.sparkContext.hadoopRDD(hadoopConf, classOf[BitcoinTransactionElementFileInputFormat], classOf[BytesWritable], classOf[BitcoinTransactionElement], 2);
+  def load(context: SQLContext, location: String, hadoopConf: Configuration): RDD[(BytesWritable, BitcoinTransactionElement)] = {
+	context.sparkContext.newAPIHadoopFile(location, classOf[BitcoinTransactionElementFileInputFormat], classOf[BytesWritable], classOf[BitcoinTransactionElement], hadoopConf);
   }
 }

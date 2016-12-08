@@ -98,13 +98,13 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
     **/
     override def buildScan: RDD[Row] = {
 	// create hadoopConf
-	val hadoopConf = new JobConf()
+	val hadoopConf = new Configuration()
  	hadoopConf.set(AbstractBitcoinRecordReader.CONF_MAXBLOCKSIZE,String.valueOf(maxBlockSize))
  	hadoopConf.set(AbstractBitcoinRecordReader.CONF_FILTERMAGIC,magic)
  	hadoopConf.set(AbstractBitcoinRecordReader.CONF_USEDIRECTBUFFER,String.valueOf(useDirectBuffer))
  	hadoopConf.set(AbstractBitcoinFileInputFormat.CONF_ISSPLITABLE, String.valueOf(isSplitable))
         // read BitcoinBlock
-	val bitcoinBlockRDD = BitcoinBlockFile.load(sqlContext, location, hadoopConf: JobConf)
+	val bitcoinBlockRDD = BitcoinBlockFile.load(sqlContext, location, hadoopConf)
         // map to schema
 	val schemaFields = schema.fields
 	val rowArray = new Array[Any](schemaFields.length)

@@ -64,7 +64,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.2" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.3" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")

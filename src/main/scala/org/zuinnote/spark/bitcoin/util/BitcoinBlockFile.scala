@@ -28,12 +28,12 @@ import org.apache.spark.sql.SQLContext
 
 import org.apache.hadoop.io._
 import org.apache.hadoop.conf._
-import org.apache.hadoop.mapred._
 
 
 import org.apache.hadoop.fs.Path
 
-import org.zuinnote.hadoop.bitcoin.format._
+import org.zuinnote.hadoop.bitcoin.format.common._
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
 
 
 private[bitcoin] object BitcoinBlockFile {

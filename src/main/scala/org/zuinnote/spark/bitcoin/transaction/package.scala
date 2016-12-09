@@ -18,7 +18,8 @@ package org.zuinnote.spark.bitcoin.transaction
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
-import org.zuinnote.hadoop.bitcoin.format._
+import org.zuinnote.hadoop.bitcoin.format.common._
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
 
    
 /**

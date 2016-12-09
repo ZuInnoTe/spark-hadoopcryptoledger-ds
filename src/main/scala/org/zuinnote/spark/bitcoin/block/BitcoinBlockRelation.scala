@@ -39,8 +39,8 @@ import org.apache.commons.logging.LogFactory
 import org.apache.commons.logging.Log
 
 
-import org.zuinnote.hadoop.bitcoin.format._
-   
+import org.zuinnote.hadoop.bitcoin.format.common._
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
 import org.zuinnote.spark.bitcoin.util.BitcoinBlockFile
 
 /**

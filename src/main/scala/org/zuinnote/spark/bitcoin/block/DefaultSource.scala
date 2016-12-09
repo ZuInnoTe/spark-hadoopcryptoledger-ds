@@ -20,7 +20,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode, SQLContext}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types.StructType
 
-import org.zuinnote.hadoop.bitcoin.format._
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._
    
 /**
 * Author: Jörn Franke <zuinnote@gmail.com>

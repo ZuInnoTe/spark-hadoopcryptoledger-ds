@@ -10,6 +10,14 @@ This datasource is available on [Spark-packages.org](https://spark-packages.org/
 
 Find here the status from the Continuous Integration service: https://travis-ci.org/ZuInnoTe/spark-hadoopcryptoledger-ds/
 
+# Release Notes
+
+## Version 1.0.3
+Version based on hadoopcryptoledger library 1.0.3 and the new mapreduce API
+
+## Version 1.0.2
+Original version based on hadoopcryptoledger library 1.0.2
+
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
 * "magic" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.filter.magic"

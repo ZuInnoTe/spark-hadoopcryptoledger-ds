@@ -1,5 +1,5 @@
 # spark-hadoopcryptoledger-ds
-A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark 1.5.
+A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark > 1.5 or Spark >= 2.0.
 Currently this datasource supports the following formats of the HadoopCryptoLedger library:
 * Bitcoin Blockchain
  * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block

@@ -91,12 +91,13 @@ case class BitcoinTransactionElementRelation(location: String,maxBlockSize: Inte
 	val rowArray = new Array[Any](schemaFields.length)
         bitcoinTransactionElementRDD.flatMap(hadoopKeyValueTuple => {
 		// map the BitcoinBlock data structure to a Spark SQL schema
-		rowArray(0) = hadoopKeyValueTuple._2.getBlockHash
+		rowArray(0) = Row.fromSeq(hadoopKeyValueTuple._2.getBlockHash)
 		rowArray(1) = hadoopKeyValueTuple._2.getTransactionIdxInBlock
-		rowArray(2) = hadoopKeyValueTuple._2.getType
-		rowArray(3) = hadoopKeyValueTuple._2.getIndexInTransaction
-		rowArray(4) = hadoopKeyValueTuple._2.getAmount
-		rowArray(5) = hadoopKeyValueTuple._2.getScript		
+		rowArray(2) = Row.fromSeq(hadoopKeyValueTuple._2.getTransactionHash)
+		rowArray(3) = hadoopKeyValueTuple._2.getType
+		rowArray(4) = hadoopKeyValueTuple._2.getIndexInTransaction
+		rowArray(5) = hadoopKeyValueTuple._2.getAmount
+		rowArray(6) = Row.fromSeq(hadoopKeyValueTuple._2.getScript)		
           	Some(Row.fromSeq(rowArray))
 		}
         )

@@ -2,7 +2,7 @@ lazy val root = (project in file(".")).
   settings(
     organization := "com.github.zuinnote",
     name := "spark-hadoopcryptoledger-ds",
-    version := "1.0.3"
+    version := "1.0.4"
   )
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))

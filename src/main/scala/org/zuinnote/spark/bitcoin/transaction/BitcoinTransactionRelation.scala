@@ -105,32 +105,32 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 			val currentTransaction=hadoopKeyValueTuple._2
 			rowArray(0)=hadoopKeyValueTuple._1 // current transaction hash
 			rowArray(1)=currentTransaction.getVersion
-			rowArray(2)=currentTransaction.getInCounter
-			rowArray(3)=currentTransaction.getOutCounter
+			rowArray(2)=Row.fromSeq(currentTransaction.getInCounter)
+			rowArray(3)=Row.fromSeq(currentTransaction.getOutCounter)
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
 			for (currentTransactionInput <-currentTransaction.getListOfInputs) {
-				val currentTransactionInputPrevTransactionHash=currentTransactionInput.getPrevTransactionHash
+				val currentTransactionInputPrevTransactionHash=Row.fromSeq(currentTransactionInput.getPrevTransactionHash)
 				val currentTransactionInputPreviousTxOutIndex=currentTransactionInput.getPreviousTxOutIndex
-				val currentTransactionInputTxInScriptLength=currentTransactionInput.getTxInScriptLength
-				val currentTransactionInputTxInScript=currentTransactionInput.getTxInScript
+				val currentTransactionInputTxInScriptLength=Row.fromSeq(currentTransactionInput.getTxInScriptLength)
+				val currentTransactionInputTxInScript=Row.fromSeq(currentTransactionInput.getTxInScript)
 				val currentTransactionInputSeqNo=currentTransactionInput.getSeqNo
-				currentTransactionListOfInputs(j)=(currentTransactionInputPrevTransactionHash,currentTransactionInputPreviousTxOutIndex,currentTransactionInputTxInScriptLength,currentTransactionInputTxInScript,currentTransactionInputSeqNo)
+				currentTransactionListOfInputs(j)=Row.fromSeq(Seq(currentTransactionInputPrevTransactionHash,currentTransactionInputPreviousTxOutIndex,currentTransactionInputTxInScriptLength,currentTransactionInputTxInScript,currentTransactionInputSeqNo))
 				j+=1
 			}
-			rowArray(4)=currentTransactionListOfInputs
+			rowArray(4)=Row.fromSeq(currentTransactionListOfInputs)
 			val currentTransactionListOfOutputs = new Array[Any](currentTransaction.getListOfOutputs().size())
 			// map outputs
 			j=0;
 			for (currentTransactionOutput <-currentTransaction.getListOfOutputs) {
 				val currentTransactionOutputValue = currentTransactionOutput.getValue
-				val currentTransactionOutputTxOutScriptLength = currentTransactionOutput.getTxOutScriptLength
-				val currentTransactionOutputTxOutScript = currentTransactionOutput.getTxOutScript
-				currentTransactionListOfOutputs(j)=(currentTransactionOutputValue,currentTransactionOutputTxOutScriptLength,currentTransactionOutputTxOutScript)
+				val currentTransactionOutputTxOutScriptLength = Row.fromSeq(currentTransactionOutput.getTxOutScriptLength)
+				val currentTransactionOutputTxOutScript = Row.fromSeq(currentTransactionOutput.getTxOutScript)
+				currentTransactionListOfOutputs(j)=Row.fromSeq(Seq(currentTransactionOutputValue,currentTransactionOutputTxOutScriptLength,currentTransactionOutputTxOutScript))
 				j+=1
 			}
-			rowArray(5)=currentTransactionListOfOutputs
+			rowArray(5)=Row.fromSeq(currentTransactionListOfOutputs)
 			rowArray(6)=currentTransaction.getLockTime		
 		
 		// add row representing one Bitcoin Transaction

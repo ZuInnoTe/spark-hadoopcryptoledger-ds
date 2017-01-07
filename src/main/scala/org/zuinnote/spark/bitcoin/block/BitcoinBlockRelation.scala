@@ -17,9 +17,12 @@ package org.zuinnote.spark.bitcoin.block
 
 import scala.collection.JavaConversions._
 
+import org.apache.spark.sql.catalyst.InternalRow
+
 import org.apache.spark.sql.sources.{BaseRelation,TableScan}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.types.ArrayType
+import org.apache.spark.sql.types.ByteType
 import org.apache.spark.sql.types.BinaryType
 import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.types.LongType
@@ -62,7 +65,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
   override def schema: StructType = {
  
       return StructType(Seq(StructField("blockSize", IntegerType, false), 
-                            StructField("magicNo", IntegerType, false),
+                            StructField("magicNo", BinaryType, false),
 				StructField("version", IntegerType, false),
 				StructField("time", IntegerType, false),
 				StructField("bits", BinaryType, false),
@@ -72,7 +75,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 				StructField("hashMerkleRoot", BinaryType, false),
 				StructField("transactions",ArrayType(StructType(Seq
 					(StructField("version", IntegerType, false),
-					StructField("inCounter", BinaryType, false),
+					StructField("inCounter",BinaryType, false),
 					StructField("outCounter", BinaryType, false),
 					StructField("listOfInputs",ArrayType(StructType(Seq(
 						StructField("prevTransactionHash",BinaryType,false),					
@@ -111,49 +114,50 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
         bitcoinBlockRDD.flatMap(hadoopKeyValueTuple => {
 		// map the BitcoinBlock data structure to a Spark SQL schema
 		rowArray(0) = hadoopKeyValueTuple._2.getBlockSize
-		rowArray(1) = hadoopKeyValueTuple._2.getMagicNo
+		rowArray(1) = Row.fromSeq(hadoopKeyValueTuple._2.getMagicNo)
 		rowArray(2) = hadoopKeyValueTuple._2.getVersion
 		rowArray(3) = hadoopKeyValueTuple._2.getTime
-		rowArray(4) = hadoopKeyValueTuple._2.getBits
+		rowArray(4) = Row.fromSeq(hadoopKeyValueTuple._2.getBits)
 		rowArray(5) = hadoopKeyValueTuple._2.getNonce		
 		rowArray(6) = hadoopKeyValueTuple._2.getTransactionCounter
-		rowArray(7) = hadoopKeyValueTuple._2.getHashPrevBlock	
-		rowArray(8) = hadoopKeyValueTuple._2.getHashMerkleRoot
+		rowArray(7) = Row.fromSeq(hadoopKeyValueTuple._2.getHashPrevBlock)	
+		rowArray(8) = Row.fromSeq(hadoopKeyValueTuple._2.getHashMerkleRoot)
 		// map transactions
 		var transactionArray=new Array[Any](hadoopKeyValueTuple._2.getTransactions().size())
 		var i=0
 		for (currentTransaction <- hadoopKeyValueTuple._2.getTransactions()) {
 			
 			val currentTransactionVersion=currentTransaction.getVersion
-			val currentTransactionInCounter=currentTransaction.getInCounter
+			val currentTransactionInCounter=Row.fromSeq(currentTransaction.getInCounter.toSeq)
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
 			for (currentTransactionInput <-currentTransaction.getListOfInputs) {
-				val currentTransactionInputPrevTransactionHash=currentTransactionInput.getPrevTransactionHash
+				val currentTransactionInputPrevTransactionHash=Row.fromSeq(currentTransactionInput.getPrevTransactionHash)
 				val currentTransactionInputPreviousTxOutIndex=currentTransactionInput.getPreviousTxOutIndex
-				val currentTransactionInputTxInScriptLength=currentTransactionInput.getTxInScriptLength
-				val currentTransactionInputTxInScript=currentTransactionInput.getTxInScript
+				val currentTransactionInputTxInScriptLength=Row.fromSeq(currentTransactionInput.getTxInScriptLength)
+				val currentTransactionInputTxInScript=Row.fromSeq(currentTransactionInput.getTxInScript)
 				val currentTransactionInputSeqNo=currentTransactionInput.getSeqNo
-				currentTransactionListOfInputs(j)=(currentTransactionInputPrevTransactionHash,currentTransactionInputPreviousTxOutIndex,currentTransactionInputTxInScriptLength,currentTransactionInputTxInScript,currentTransactionInputSeqNo)
+				currentTransactionListOfInputs(j)=Row.fromSeq(Seq(currentTransactionInputPrevTransactionHash,currentTransactionInputPreviousTxOutIndex,currentTransactionInputTxInScriptLength,currentTransactionInputTxInScript,currentTransactionInputSeqNo))
 				j+=1
 			}
-			val currentTransactionOutCounter=currentTransaction.getOutCounter
+			val currentTransactionOutCounter=Row.fromSeq(currentTransaction.getOutCounter)
 			val currentTransactionListOfOutputs = new Array[Any](currentTransaction.getListOfOutputs().size())
 			// map outputs
 			j=0;
 			for (currentTransactionOutput <-currentTransaction.getListOfOutputs) {
 				val currentTransactionOutputValue = currentTransactionOutput.getValue
-				val currentTransactionOutputTxOutScriptLength = currentTransactionOutput.getTxOutScriptLength
-				val currentTransactionOutputTxOutScript = currentTransactionOutput.getTxOutScript
-				currentTransactionListOfOutputs(j)=(currentTransactionOutputValue,currentTransactionOutputTxOutScriptLength,currentTransactionOutputTxOutScript)
+				val currentTransactionOutputTxOutScriptLength = Row.fromSeq(currentTransactionOutput.getTxOutScriptLength)
+				val currentTransactionOutputTxOutScript = Row.fromSeq(currentTransactionOutput.getTxOutScript)
+				currentTransactionListOfOutputs(j)=Row.fromSeq(Seq(currentTransactionOutputValue,currentTransactionOutputTxOutScriptLength,currentTransactionOutputTxOutScript))
 				j+=1
 			}
 			val currentTransactionLockTime=currentTransaction.getLockTime		
-			transactionArray(i)=(currentTransactionVersion,currentTransactionInCounter,currentTransactionOutCounter,currentTransactionListOfInputs,currentTransactionListOfOutputs,currentTransactionLockTime)
+			transactionArray(i)=Row.fromSeq(Seq(currentTransactionVersion,currentTransactionInCounter,currentTransactionOutCounter,Row.fromSeq(currentTransactionListOfInputs),Row.fromSeq(currentTransactionListOfOutputs),currentTransactionLockTime))
+
 			i+=1
 		}
-		rowArray(9) = transactionArray 
+		rowArray(9) = Row.fromSeq(transactionArray)
 	 	// add row representing one Bitcoin Block
           	Some(Row.fromSeq(rowArray))
 		}

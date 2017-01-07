@@ -1,5 +1,5 @@
 # spark-hadoopcryptoledger-ds
-A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark 1.5.
+A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark > 1.5 or Spark >= 2.0.
 Currently this datasource supports the following formats of the HadoopCryptoLedger library:
 * Bitcoin Blockchain
  * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
@@ -9,6 +9,14 @@ Currently this datasource supports the following formats of the HadoopCryptoLedg
 This datasource is available on [Spark-packages.org](https://spark-packages.org/package/ZuInnoTe/spark-hadoopcryptoledger-ds) and on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Chadoopcryptoledger).
 
 Find here the status from the Continuous Integration service: https://travis-ci.org/ZuInnoTe/spark-hadoopcryptoledger-ds/
+
+# Release Notes
+
+## Version 1.0.3
+Version based on hadoopcryptoledger library 1.0.3 and the new mapreduce API
+
+## Version 1.0.2
+Original version based on hadoopcryptoledger library 1.0.2
 
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
@@ -25,7 +33,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.2
+version: 1.0.3
 
 ## Scala 2.11
  
@@ -33,7 +41,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.2
+version: 1.0.3
 
 
 # Develop

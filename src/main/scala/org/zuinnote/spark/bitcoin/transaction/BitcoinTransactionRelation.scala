@@ -105,7 +105,7 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 		// map transactions
 		
 			val currentTransaction=hadoopKeyValueTuple._2
-			rowArray(0)=hadoopKeyValueTuple._1.get // current transaction hash
+			rowArray(0)=hadoopKeyValueTuple._1.copyBytes // current transaction hash
 			rowArray(1)=currentTransaction.getVersion
 			rowArray(2)=currentTransaction.getInCounter
 			rowArray(3)=currentTransaction.getOutCounter

@@ -105,19 +105,19 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 		// map transactions
 		
 			val currentTransaction=hadoopKeyValueTuple._2
-			rowArray(0)=Row.fromSeq(hadoopKeyValueTuple._1.get) // current transaction hash
+			rowArray(0)=hadoopKeyValueTuple._1.get // current transaction hash
 			rowArray(1)=currentTransaction.getVersion
-			rowArray(2)=Row.fromSeq(currentTransaction.getInCounter)
-			rowArray(3)=Row.fromSeq(currentTransaction.getOutCounter)
+			rowArray(2)=currentTransaction.getInCounter
+			rowArray(3)=currentTransaction.getOutCounter
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
 			for (currentTransactionInput <-currentTransaction.getListOfInputs) {
 				val currentTransactionInputStructArray = new Array[Any](5)
-				currentTransactionInputStructArray(0)=Row.fromSeq(currentTransactionInput.getPrevTransactionHash)
+				currentTransactionInputStructArray(0)=currentTransactionInput.getPrevTransactionHash
 				currentTransactionInputStructArray(1)=currentTransactionInput.getPreviousTxOutIndex
-				currentTransactionInputStructArray(2)=Row.fromSeq(currentTransactionInput.getTxInScriptLength)
-				currentTransactionInputStructArray(3)=Row.fromSeq(currentTransactionInput.getTxInScript)
+				currentTransactionInputStructArray(2)=currentTransactionInput.getTxInScriptLength
+				currentTransactionInputStructArray(3)=currentTransactionInput.getTxInScript
 				currentTransactionInputStructArray(4)=currentTransactionInput.getSeqNo
 
 				currentTransactionListOfInputs(j)=Row.fromSeq(currentTransactionInputStructArray)
@@ -130,8 +130,8 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 			for (currentTransactionOutput <-currentTransaction.getListOfOutputs) {
 				val currentTransactionOutputStructArray = new Array[Any](3)
 				currentTransactionOutputStructArray(0) = currentTransactionOutput.getValue
-				currentTransactionOutputStructArray(1) = Row.fromSeq(currentTransactionOutput.getTxOutScriptLength)
-				currentTransactionOutputStructArray(2) = Row.fromSeq(currentTransactionOutput.getTxOutScript)
+				currentTransactionOutputStructArray(1) = currentTransactionOutput.getTxOutScriptLength
+				currentTransactionOutputStructArray(2) = currentTransactionOutput.getTxOutScript
 				currentTransactionListOfOutputs(j)=Row.fromSeq(currentTransactionOutputStructArray)
 				j+=1
 			}

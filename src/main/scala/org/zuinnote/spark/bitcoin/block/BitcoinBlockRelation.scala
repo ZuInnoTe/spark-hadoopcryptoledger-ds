@@ -113,31 +113,31 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
         bitcoinBlockRDD.flatMap(hadoopKeyValueTuple => {
 		// map the BitcoinBlock data structure to a Spark SQL schema
 		rowArray(0) = hadoopKeyValueTuple._2.getBlockSize
-		rowArray(1) = Row.fromSeq(hadoopKeyValueTuple._2.getMagicNo)
+		rowArray(1) = hadoopKeyValueTuple._2.getMagicNo
 		rowArray(2) = hadoopKeyValueTuple._2.getVersion
 		rowArray(3) = hadoopKeyValueTuple._2.getTime
-		rowArray(4) = Row.fromSeq(hadoopKeyValueTuple._2.getBits)
+		rowArray(4) = hadoopKeyValueTuple._2.getBits
 		rowArray(5) = hadoopKeyValueTuple._2.getNonce		
 		rowArray(6) = hadoopKeyValueTuple._2.getTransactionCounter
-		rowArray(7) = Row.fromSeq(hadoopKeyValueTuple._2.getHashPrevBlock)	
-		rowArray(8) = Row.fromSeq(hadoopKeyValueTuple._2.getHashMerkleRoot)
+		rowArray(7) = hadoopKeyValueTuple._2.getHashPrevBlock	
+		rowArray(8) = hadoopKeyValueTuple._2.getHashMerkleRoot
 		// map transactions
 		var transactionArray=new Array[Any](hadoopKeyValueTuple._2.getTransactions().size())
 		var i=0
 		for (currentTransaction <- hadoopKeyValueTuple._2.getTransactions()) {
 			val currentTransactionStructArray = new Array[Any](6)
 			currentTransactionStructArray(0)=currentTransaction.getVersion
-			currentTransactionStructArray(1)=Row.fromSeq(currentTransaction.getInCounter)
-			currentTransactionStructArray(2)=Row.fromSeq(currentTransaction.getOutCounter)
+			currentTransactionStructArray(1)=currentTransaction.getInCounter
+			currentTransactionStructArray(2)=currentTransaction.getOutCounter
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
 			for (currentTransactionInput <-currentTransaction.getListOfInputs) {
 				val currentTransactionInputStructArray = new Array[Any](5)
-				currentTransactionInputStructArray(0)=Row.fromSeq(currentTransactionInput.getPrevTransactionHash)
+				currentTransactionInputStructArray(0)=currentTransactionInput.getPrevTransactionHash
 				currentTransactionInputStructArray(1)=currentTransactionInput.getPreviousTxOutIndex
-				currentTransactionInputStructArray(2)=Row.fromSeq(currentTransactionInput.getTxInScriptLength)
-				currentTransactionInputStructArray(3)=Row.fromSeq(currentTransactionInput.getTxInScript)
+				currentTransactionInputStructArray(2)=currentTransactionInput.getTxInScriptLength
+				currentTransactionInputStructArray(3)=currentTransactionInput.getTxInScript
 				currentTransactionInputStructArray(4)=currentTransactionInput.getSeqNo
 				currentTransactionListOfInputs(j)=Row.fromSeq(currentTransactionInputStructArray)
 				j+=1
@@ -149,8 +149,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 			for (currentTransactionOutput <-currentTransaction.getListOfOutputs) {
 				val currentTransactionOutputStructArray = new Array[Any](3)
 				currentTransactionOutputStructArray(0) = currentTransactionOutput.getValue
-				currentTransactionOutputStructArray(1) = Row.fromSeq(currentTransactionOutput.getTxOutScriptLength)
-				currentTransactionOutputStructArray(2) = Row.fromSeq(currentTransactionOutput.getTxOutScript)
+				currentTransactionOutputStructArray(1) = currentTransactionOutput.getTxOutScriptLength
+				currentTransactionOutputStructArray(2) = currentTransactionOutput.getTxOutScript
 				currentTransactionListOfOutputs(j)=Row.fromSeq(currentTransactionOutputStructArray)
 				j+=1
 			}

@@ -62,7 +62,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
 private var sc: SparkContext = _
 private var sqlContext: SQLContext = _
 private val master: String = "local[2]"
-private val appName: String = "example-scalasparkbitcoinblockcounter-integrationtest"
+private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"
 private val tmpPrefix: String = "hcl-integrationtest"
 private var tmpPath: java.nio.file.Path = _
 private val CLUSTERNAME: String ="hcl-minicluster"

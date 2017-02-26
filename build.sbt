@@ -21,9 +21,9 @@ crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions += "-target:jvm-1.7"
 
-fork := true
+javaOptions += "-Xmx3G"
 
-javaOptions += "-Xmx1G"
+fork := true
 
 
 jacoco.settings

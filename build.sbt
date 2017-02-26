@@ -21,8 +21,10 @@ crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions += "-target:jvm-1.7"
 
+fork := true
 
-fork  := true
+javaOptions += "-Xmx1G"
+
 
 jacoco.settings
 
@@ -50,3 +52,4 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.0" % "it" cl
 libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.0" % "it" classifier "" classifier "tests"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-minicluster" % "2.7.0" % "it"
+

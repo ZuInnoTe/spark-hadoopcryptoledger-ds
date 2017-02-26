@@ -3,11 +3,12 @@ scala:
 - 2.10.5
 - 2.11.7
 script:
-- sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
+- sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+- sbt ++$TRAVIS_SCALA_VERSION it-jacoco:cover
 - sbt ++$TRAVIS_SCALA_VERSION coverageReport
 - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
-- sbt ++$TRAVIS_SCALA_VERSION it-jacoco:cover
+
 env:
   global:
     secure: AiDPPjfq+5qSZQ6z9bAushFPl0lTnSbq1qzPbN5+Fixyu0FDooVsX+xG28MjuMo5TRp7xX2CCIrGjL5oTELCi4pi3roZnGCc2MJYLLX6IHHc7DYRvNO6NMpfhyieigx0KyghvG+HCWPEPFTmYjwZT7VCndlple3IuGjxu31N8irXRm5P5JwpWrikLW+Ctn8j+MdyToAndfsQQ7nvM3SNEug6bEAJCCXxcOBivOs2XQbVKuRQzY14Tn6P6VI9BP8EcCtWthtV//C/6dJjEOt9SGL0ExsMCGSumxAkOWKRums+KNM6MxDh+Xge2se1Fq81Ewgg5l8GDViFi55JDi2j/8VAOkH1/ZX1U9zw1atWR2MWaFZUEiZi2ougtqoJXjJPJFv4vPYf/uIiImVx+/ZeLXJqy4CdK3TSz8pGC7tDDNvwVV7j0MKRKQ3xymdyRcDUElRvhxMWEgMvcJ0TXc6opdrzsrC1C2X5DE1maaYDkpnCkhFMEuG0Q9yggmTAt1xNA0hCohq5VscI31/DM/N9Xe4iB98WgxzB3dwxlmmX2R2XLWfy8j5Eh2Eoz8Hm+BxzdcAoflNwCzXcjWFpnQnwwlmk6dENInyvzdd8xpiE9utbMNNQhG8nLQOmMhENKg6bIv6n/jkuYIdDKjH71w+t1tJ2DlkKea0Gh9aasbzs0OM=

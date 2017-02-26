@@ -15,6 +15,10 @@ Find here the status from the Continuous Integration service: https://travis-ci.
 
 # Release Notes
 
+## Version 1.0.4
+Version based on hadoopcryptoledger library 1.0.4 (quality management release). Fixed critical [issue 2](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/2). Added integration test to ensure quality.
+
+
 ## Version 1.0.3
 Version based on hadoopcryptoledger library 1.0.3 and the new mapreduce API
 
@@ -36,7 +40,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.3
+version: 1.0.4
 
 ## Scala 2.11
  
@@ -44,7 +48,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.3
+version: 1.0.4
 
 
 # Develop
@@ -75,7 +79,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.3" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.4" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")

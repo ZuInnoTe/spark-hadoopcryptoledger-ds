@@ -4,7 +4,7 @@ scala:
 - 2.11.7
 script:
 - sbt ++$TRAVIS_SCALA_VERSION clean  test
-- sbt ++$TRAVIS_SCALA_VERSION it-jacoco:cover
+- sbt ++$TRAVIS_SCALA_VERSION it:test
 
 
 env:

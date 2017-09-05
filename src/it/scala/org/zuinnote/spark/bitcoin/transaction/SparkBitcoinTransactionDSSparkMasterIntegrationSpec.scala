@@ -140,6 +140,7 @@ override def beforeAll(): Unit = {
 "The genesis block on DFS" should "be fully read in dataframe" in {
 	Given("Genesis Block on DFSCluster")
 	// create input directory
+     dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
 	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
 	// copy bitcoin blocks
 	val classLoader = getClass().getClassLoader()
@@ -209,9 +210,10 @@ override def beforeAll(): Unit = {
 }
 
 
-"The genesis block on DFS" should "be read in dataframe" in {
+"The random scriptwitness block on DFS" should "be read in dataframe" in {
 	Given("Genesis Block on DFSCluster")
 	// create input directory
+     dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
 	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
 	// copy bitcoin blocks
 	val classLoader = getClass().getClassLoader()

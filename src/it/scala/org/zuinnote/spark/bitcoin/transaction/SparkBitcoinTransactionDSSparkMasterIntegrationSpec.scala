@@ -158,7 +158,7 @@ override def beforeAll(): Unit = {
 	assert("outCounter"==df.columns(3))
 	assert("listOfInputs"==df.columns(4))
 	assert("listOfOutputs"==df.columns(5))
-  assert("listOfOutputs"==df.columns(6))
+  assert("listOfScriptWitness"==df.columns(6))
 	assert("lockTime"==df.columns(7))
 	// validate transaction data
 	val currentTransactionHash = df.select("currentTransactionHash").collect

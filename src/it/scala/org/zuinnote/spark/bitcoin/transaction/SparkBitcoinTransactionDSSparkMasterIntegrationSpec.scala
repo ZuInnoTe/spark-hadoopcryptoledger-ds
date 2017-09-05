@@ -50,7 +50,7 @@ import org.apache.hadoop.io.compress.SplitCompressionInputStream
 
 
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.SQLContext 
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
 
 
@@ -58,7 +58,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.scalatest.{FlatSpec, BeforeAndAfterAll, GivenWhenThen, Matchers}
 
 class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
- 
+
 private var sc: SparkContext = _
 private var sqlContext: SQLContext = _
 private val master: String = "local[2]"
@@ -79,7 +79,7 @@ private var openDecompressors = ArrayBuffer[Decompressor]();
 override def beforeAll(): Unit = {
     super.beforeAll()
 
-		// Create temporary directory for HDFS base and shutdownhook 
+		// Create temporary directory for HDFS base and shutdownhook
 	// create temp directory
       tmpPath = Files.createTempDirectory(tmpPrefix)
       // create shutdown hook to remove temp files (=HDFS MiniCluster) after shutdown, may need to rethink to avoid many threads are created
@@ -110,7 +110,7 @@ override def beforeAll(): Unit = {
 	conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath())
 	val builder = new MiniDFSCluster.Builder(conf)
  	 dfsCluster = builder.numDataNodes(NOOFDATANODES).build()
-	conf.set("fs.defaultFS", dfsCluster.getFileSystem().getUri().toString()) 
+	conf.set("fs.defaultFS", dfsCluster.getFileSystem().getUri().toString())
 	// create local Spark cluster
  	val sparkConf = new SparkConf()
       .setMaster("local[2]")
@@ -119,12 +119,12 @@ override def beforeAll(): Unit = {
 	sqlContext = new SQLContext(sc)
  }
 
-  
+
   override def afterAll(): Unit = {
    // close Spark Context
     if (sc!=null) {
 	sc.stop()
-    } 
+    }
     // close decompressor
 	for ( currentDecompressor <- this.openDecompressors) {
 		if (currentDecompressor!=null) {
@@ -147,7 +147,7 @@ override def beforeAll(): Unit = {
     	val fileName: String="genesis.blk"
     	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
     	val inputFile=new Path(fileNameFullLocal)
-    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)	
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
 	When("reading Genesis block using datasource")
 	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
 	Then("all fields should be readable trough Spark SQL")
@@ -158,7 +158,8 @@ override def beforeAll(): Unit = {
 	assert("outCounter"==df.columns(3))
 	assert("listOfInputs"==df.columns(4))
 	assert("listOfOutputs"==df.columns(5))
-	assert("lockTime"==df.columns(6))
+  assert("listOfOutputs"==df.columns(6))
+	assert("lockTime"==df.columns(7))
 	// validate transaction data
 	val currentTransactionHash = df.select("currentTransactionHash").collect
 	val currentTransactionHashExpected : Array[Byte] = Array(0x3B.toByte,0xA3.toByte,0xED.toByte,0xFD.toByte,0x7A.toByte,0x7B.toByte,0x12.toByte,0xB2.toByte,0x7A.toByte,0xC7.toByte,0x2C.toByte,0x3E.toByte,0x67.toByte,0x76.toByte,0x8F.toByte,0x61.toByte,
@@ -205,6 +206,36 @@ override def beforeAll(): Unit = {
 0x12.toByte,0xDE.toByte,0x5C.toByte,0x38.toByte,0x4D.toByte,0xF7.toByte,0xBA.toByte,0x0B.toByte,0x8D.toByte,0x57.toByte,0x8A.toByte,0x4C.toByte,0x70.toByte,0x2B.toByte,0x6B.toByte,0xF1.toByte,
 0x1D.toByte,0x5F.toByte,0xAC.toByte)
 	assert(txOutScriptExpected.deep==txOutScript(0).get(0).asInstanceOf[Array[Byte]].deep)
+}
+
+
+"The genesis block on DFS" should "be read in dataframe" in {
+	Given("Genesis Block on DFSCluster")
+	// create input directory
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+    	// put testdata on DFS
+    	val fileName: String="scriptwitness.blk"
+    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
+    	val inputFile=new Path(fileNameFullLocal)
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading Genesis block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
+	Then("all fields should be readable trough Spark SQL")
+	// check first if structure is correct
+	assert("currentTransactionHash"==df.columns(0))
+	assert("version"==df.columns(1))
+	assert("inCounter"==df.columns(2))
+	assert("outCounter"==df.columns(3))
+	assert("listOfInputs"==df.columns(4))
+	assert("listOfOutputs"==df.columns(5))
+  assert("listOfScriptWitness"==df.columns(6))
+	assert("lockTime"==df.columns(7))
+	// validate transaction data
+	val noOfTransactions = df.count
+	assert(470==noOfTransactions)
+
 }
 
 

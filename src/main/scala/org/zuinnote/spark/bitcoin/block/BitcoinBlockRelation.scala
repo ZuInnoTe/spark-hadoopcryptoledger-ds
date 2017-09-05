@@ -27,7 +27,7 @@ import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.types.LongType
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.SQLContext 
+import org.apache.spark.sql.SQLContext
 
 import org.apache.spark.sql._
 import org.apache.spark.rdd.RDD
@@ -42,7 +42,7 @@ import org.apache.commons.logging.Log
 
 
 import org.zuinnote.hadoop.bitcoin.format.common._
-import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.util.BitcoinBlockFile
 
 /**
@@ -62,8 +62,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
   val LOG = LogFactory.getLog(BitcoinBlockRelation.getClass);
 
   override def schema: StructType = {
- 
-      return StructType(Seq(StructField("blockSize", IntegerType, false), 
+
+      return StructType(Seq(StructField("blockSize", IntegerType, false),
                             StructField("magicNo", BinaryType, false),
 				StructField("version", IntegerType, false),
 				StructField("time", IntegerType, false),
@@ -77,7 +77,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 					StructField("inCounter",BinaryType, false),
 					StructField("outCounter", BinaryType, false),
 					StructField("listOfInputs",ArrayType(StructType(Seq(
-						StructField("prevTransactionHash",BinaryType,false),					
+						StructField("prevTransactionHash",BinaryType,false),
 						StructField("previousTxOutIndex",LongType,false),
 						StructField("txInScriptLength",BinaryType,false),
 						StructField("txInScript",BinaryType,false),
@@ -86,10 +86,14 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 						StructField("value",LongType,false),
 						StructField("txOutScriptLength",BinaryType,false),
 						StructField("txOutScript",BinaryType,false)))), false),
+          StructField("listOfScriptWitness",ArrayType(StructType(Seq(
+  						StructField("witnessScriptLength",BinaryType,false),
+  						StructField("witnessScript",BinaryType,false)))), false),
 					StructField("lockTime", IntegerType, false)
 				))),false)
 			))
     }
+
 
 
     /**
@@ -117,15 +121,15 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 		rowArray(2) = hadoopKeyValueTuple._2.getVersion
 		rowArray(3) = hadoopKeyValueTuple._2.getTime
 		rowArray(4) = hadoopKeyValueTuple._2.getBits
-		rowArray(5) = hadoopKeyValueTuple._2.getNonce		
+		rowArray(5) = hadoopKeyValueTuple._2.getNonce
 		rowArray(6) = hadoopKeyValueTuple._2.getTransactionCounter
-		rowArray(7) = hadoopKeyValueTuple._2.getHashPrevBlock	
+		rowArray(7) = hadoopKeyValueTuple._2.getHashPrevBlock
 		rowArray(8) = hadoopKeyValueTuple._2.getHashMerkleRoot
 		// map transactions
 		var transactionArray=new Array[Any](hadoopKeyValueTuple._2.getTransactions().size())
 		var i=0
 		for (currentTransaction <- hadoopKeyValueTuple._2.getTransactions()) {
-			val currentTransactionStructArray = new Array[Any](6)
+			val currentTransactionStructArray = new Array[Any](7)
 			currentTransactionStructArray(0)=currentTransaction.getVersion
 			currentTransactionStructArray(1)=currentTransaction.getInCounter
 			currentTransactionStructArray(2)=currentTransaction.getOutCounter
@@ -155,7 +159,19 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 				j+=1
 			}
 			currentTransactionStructArray(4)=currentTransactionListOfOutputs
-			currentTransactionStructArray(5)=currentTransaction.getLockTime		
+      // map scriptWitness
+      val currentTransactionListOfScriptWitness = new Array[Any](currentTransaction.getBitcoinScriptWitness().size())
+			j=0;
+			for (currentTransactionScriptWitness <-currentTransaction.getBitcoinScriptWitness) {
+				val currentTransactionScriptWitnessStructArray = new Array[Any](2)
+				currentTransactionScriptWitnessStructArray(0) = currentTransactionScriptWitness.getWitnessScriptLength
+				currentTransactionScriptWitnessStructArray(1) = currentTransactionScriptWitness.getWitnessScript
+				currentTransactionListOfScriptWitness(j)=Row.fromSeq(currentTransactionScriptWitnessStructArray)
+				j+=1
+			}
+			currentTransactionStructArray(5)=currentTransactionListOfScriptWitness
+      // locktime
+			currentTransactionStructArray(6)=currentTransaction.getLockTime
 			transactionArray(i)=Row.fromSeq(currentTransactionStructArray)
 
 			i+=1
@@ -167,6 +183,6 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
         )
 
      }
-  
+
 
 }

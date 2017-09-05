@@ -1,5 +1,5 @@
 
- 
+
 import sbt._
 import Keys._
 import scala._
@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 .settings(
        organization := "com.github.zuinnote",
     name := "spark-hadoopcryptoledger-ds",
-    version := "1.0.4"
+    version := "1.0.5"
 )
  .configs( IntegrationTest )
   .settings( Defaults.itSettings : _*)
@@ -32,7 +32,7 @@ itJacoco.settings
 
 
 
-libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.0.4" % "compile"
+libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.0.5" % "compile"
 
 libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 
@@ -52,4 +52,3 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.0" % "it" cl
 libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.0" % "it" classifier "" classifier "tests"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-minicluster" % "2.7.0" % "it"
-

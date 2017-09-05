@@ -50,7 +50,7 @@ import org.apache.hadoop.io.compress.SplitCompressionInputStream
 
 
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.SQLContext 
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
 
 
@@ -58,7 +58,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.scalatest.{FlatSpec, BeforeAndAfterAll, GivenWhenThen, Matchers}
 
 class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
- 
+
 private var sc: SparkContext = _
 private var sqlContext: SQLContext = _
 private val master: String = "local[2]"
@@ -79,7 +79,7 @@ private var openDecompressors = ArrayBuffer[Decompressor]();
 override def beforeAll(): Unit = {
     super.beforeAll()
 
-		// Create temporary directory for HDFS base and shutdownhook 
+		// Create temporary directory for HDFS base and shutdownhook
 	// create temp directory
       tmpPath = Files.createTempDirectory(tmpPrefix)
       // create shutdown hook to remove temp files (=HDFS MiniCluster) after shutdown, may need to rethink to avoid many threads are created
@@ -110,7 +110,7 @@ override def beforeAll(): Unit = {
 	conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath())
 	val builder = new MiniDFSCluster.Builder(conf)
  	 dfsCluster = builder.numDataNodes(NOOFDATANODES).build()
-	conf.set("fs.defaultFS", dfsCluster.getFileSystem().getUri().toString()) 
+	conf.set("fs.defaultFS", dfsCluster.getFileSystem().getUri().toString())
 	// create local Spark cluster
  	val sparkConf = new SparkConf()
       .setMaster("local[2]")
@@ -119,12 +119,12 @@ override def beforeAll(): Unit = {
 	sqlContext = new SQLContext(sc)
  }
 
-  
+
   override def afterAll(): Unit = {
    // close Spark Context
     if (sc!=null) {
 	sc.stop()
-    } 
+    }
     // close decompressor
 	for ( currentDecompressor <- this.openDecompressors) {
 		if (currentDecompressor!=null) {
@@ -140,6 +140,7 @@ override def beforeAll(): Unit = {
 "The genesis block on DFS" should "be fully read in dataframe" in {
 	Given("Genesis Block on DFSCluster")
 	// create input directory
+   dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
 	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
 	// copy bitcoin blocks
 	val classLoader = getClass().getClassLoader()
@@ -147,7 +148,7 @@ override def beforeAll(): Unit = {
     	val fileName: String="genesis.blk"
     	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
     	val inputFile=new Path(fileNameFullLocal)
-    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)	
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
 	When("reading Genesis block using datasource")
 	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
 	Then("all fields should be readable trough Spark SQL")
@@ -182,7 +183,7 @@ override def beforeAll(): Unit = {
 	val hashPrevBlock = df.select("hashPrevBlock").collect
 	val hashPrevBlockExpected: Array[Byte] = Array(0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte,0x00.toByte)
 	assert(hashPrevBlockExpected.deep==hashPrevBlock(0).get(0).asInstanceOf[Array[Byte]].deep)
-	val hashMerkleRoot = df.select("hashMerkleRoot").collect 
+	val hashMerkleRoot = df.select("hashMerkleRoot").collect
 	val hashMerkleRootExpected: Array[Byte] = Array(0x3B.toByte,0xA3.toByte,0xED.toByte,0xFD.toByte,0x7A.toByte,0x7B.toByte,0x12.toByte,0xB2.toByte,0x7A.toByte,0xC7.toByte,0x2C.toByte,0x3E.toByte,0x67.toByte,0x76.toByte,0x8F.toByte,0x61.toByte,0x7F.toByte,
 0xC8.toByte,0x1B.toByte,0xC3.toByte,0x88.toByte,0x8A.toByte,0x51.toByte,0x32.toByte,0x3A.toByte,0x9F.toByte,0xB8.toByte,0xAA.toByte,0x4B.toByte,0x1E.toByte,0x5E.toByte,0x4A.toByte)
 	assert(hashMerkleRootExpected.deep==hashMerkleRoot(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -234,6 +235,57 @@ override def beforeAll(): Unit = {
 	assert(txOutScriptExpected.deep==txOutScript(0).get(0).asInstanceOf[Array[Byte]].deep)
 }
 
+
+"The scriptwitness block on DFS" should "be read in dataframe" in {
+	Given("Scriptwitness Block on DFSCluster")
+	// create input directory
+   dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+    	// put testdata on DFS
+    	val fileName: String="scriptwitness.blk"
+    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
+    	val inputFile=new Path(fileNameFullLocal)
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading Genesis block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
+	Then("all fields should be readable trough Spark SQL")
+	// check first if structure is correct
+	assert("blockSize"==df.columns(0))
+	assert("magicNo"==df.columns(1))
+	assert("version"==df.columns(2))
+	assert("time"==df.columns(3))
+	assert("bits"==df.columns(4))
+	assert("nonce"==df.columns(5))
+	assert("transactionCounter"==df.columns(6))
+	assert("hashPrevBlock"==df.columns(7))
+	assert("hashMerkleRoot"==df.columns(8))
+	assert("transactions"==df.columns(9))
+	// validate block data
+	val blockSize = df.select("blockSize").collect
+	assert(999275==blockSize(0).getInt(0))
+	val magicNo = df.select("magicNo").collect
+	val magicNoExpected : Array[Byte] = Array(0xF9.toByte,0xBE.toByte,0xB4.toByte,0xD9.toByte)
+	assert(magicNoExpected.deep==magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
+	val version = df.select("version").collect
+	assert(536870914==version(0).getInt(0))
+	val time = df.select("time").collect
+	assert(1503889880==time(0).getInt(0))
+	val bits = df.select("bits").collect
+	val bitsExpected: Array[Byte] = Array(0xE9.toByte,0x3C.toByte,0x01.toByte,0x18.toByte)
+	assert(bitsExpected.deep==bits(0).get(0).asInstanceOf[Array[Byte]].deep)
+	val nonce = df.select("nonce").collect
+	assert(184429655==nonce(0).getInt(0))
+	val transactionCounter = df.select("transactionCounter").collect
+	assert(470==transactionCounter(0).getLong(0))
+		// validate transactions
+	val transactionsDF=df.select(explode(df("transactions")).alias("transactions"))
+
+	val transactionsDFCount = transactionsDF.count
+	assert(470==transactionsDFCount)
+
+}
 
 
 }

@@ -20,6 +20,7 @@ import scala.collection.JavaConversions._
 import org.apache.spark.sql.sources.{BaseRelation,TableScan}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.types.ArrayType
+import org.apache.spark.sql.types.ByteType
 import org.apache.spark.sql.types.BinaryType
 import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.types.LongType
@@ -62,9 +63,11 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
   val LOG = LogFactory.getLog(BitcoinTransactionRelation.getClass);
 
   override def schema: StructType = {
- 
+
       return StructType(Seq(StructField("currentTransactionHash",BinaryType,false),
 					StructField("version", IntegerType, false),
+          StructField("marker", ByteType, false),
+          StructField("flag", ByteType, false),
 					StructField("inCounter", BinaryType, false),
 					StructField("outCounter", BinaryType, false),
 					StructField("listOfInputs",ArrayType(StructType(Seq(
@@ -77,9 +80,13 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 						StructField("value",LongType,false),
 						StructField("txOutScriptLength",BinaryType,false),
 						StructField("txOutScript",BinaryType,false)))),false),
-          StructField("listOfScriptWitness",ArrayType(StructType(Seq(
-    						StructField("witnessScriptLength",BinaryType,false),
-    						StructField("witnessScript",BinaryType,false)))), false),
+          StructField("listOfScriptWitnessItem",ArrayType(StructType(Seq(
+    						StructField("stackItemCounter",BinaryType,false),
+                StructField("scriptWitnessList",ArrayType(StructType(Seq(
+                  StructField("witnessScriptLength",BinaryType,false),
+                  StructField("witnessScript",BinaryType,false)
+                )), false)
+    						))), false)),
 					StructField("lockTime", IntegerType, false)))
     }
 
@@ -110,8 +117,10 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 			val currentTransaction=hadoopKeyValueTuple._2
 			rowArray(0)=hadoopKeyValueTuple._1.copyBytes // current transaction hash
 			rowArray(1)=currentTransaction.getVersion
-			rowArray(2)=currentTransaction.getInCounter
-			rowArray(3)=currentTransaction.getOutCounter
+      rowArray(2)=currentTransaction.getMarker
+      rowArray(3)=currentTransaction.getFlag
+			rowArray(4)=currentTransaction.getInCounter
+			rowArray(5)=currentTransaction.getOutCounter
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
@@ -126,7 +135,7 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 				currentTransactionListOfInputs(j)=Row.fromSeq(currentTransactionInputStructArray)
 				j+=1
 			}
-			rowArray(4)=currentTransactionListOfInputs
+			rowArray(6)=currentTransactionListOfInputs
 			val currentTransactionListOfOutputs = new Array[Any](currentTransaction.getListOfOutputs().size())
 			// map outputs
 			j=0;
@@ -138,19 +147,28 @@ case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = A
 				currentTransactionListOfOutputs(j)=Row.fromSeq(currentTransactionOutputStructArray)
 				j+=1
 			}
-			rowArray(5)=currentTransactionListOfOutputs
+			rowArray(7)=currentTransactionListOfOutputs
       // map scriptWitness
-      val currentTransactionListOfScriptWitness = new Array[Any](currentTransaction.getBitcoinScriptWitness().size())
+      val currentTransactionListOfScriptWitnessItem = new Array[Any](currentTransaction.getBitcoinScriptWitness().size())
       j=0;
-      for (currentTransactionScriptWitness <-currentTransaction.getBitcoinScriptWitness) {
+      for (currentTransactionScriptWitnessItem <-currentTransaction.getBitcoinScriptWitness) {
         val currentTransactionScriptWitnessStructArray = new Array[Any](2)
-        currentTransactionScriptWitnessStructArray(0) = currentTransactionScriptWitness.getWitnessScriptLength
-        currentTransactionScriptWitnessStructArray(1) = currentTransactionScriptWitness.getWitnessScript
-        currentTransactionListOfScriptWitness(j)=Row.fromSeq(currentTransactionScriptWitnessStructArray)
+        currentTransactionScriptWitnessStructArray(0) = currentTransactionScriptWitnessItem.getStackItemCounter
+        val currentScriptWitnessListStructArray = new Array[Any](currentTransactionScriptWitnessItem.getScriptWitnessList().size())
+        var k=0;
+        for (currentScriptWitness <- currentTransactionScriptWitnessItem.getScriptWitnessList) {
+              val currentScriptWitnessStructArray = new Array[Any](2)
+              currentScriptWitnessStructArray(0)= currentScriptWitness.getWitnessScriptLength
+              currentScriptWitnessStructArray(1)= currentScriptWitness.getWitnessScript
+              currentScriptWitnessListStructArray(k)=Row.fromSeq(currentScriptWitnessStructArray)
+             k+=1
+        }
+        currentTransactionScriptWitnessStructArray(1) = currentScriptWitnessListStructArray
+        currentTransactionListOfScriptWitnessItem(j)=Row.fromSeq(currentTransactionScriptWitnessStructArray)
         j+=1
       }
-      rowArray(6)=currentTransactionListOfScriptWitness
-			rowArray(7)=currentTransaction.getLockTime
+      rowArray(8)=currentTransactionListOfScriptWitnessItem
+			rowArray(9)=currentTransaction.getLockTime
 
 		// add row representing one Bitcoin Transaction
           	Some(Row.fromSeq(rowArray))

@@ -155,12 +155,14 @@ override def beforeAll(): Unit = {
 	// check first if structure is correct
 	assert("currentTransactionHash"==df.columns(0))
 	assert("version"==df.columns(1))
-	assert("inCounter"==df.columns(2))
-	assert("outCounter"==df.columns(3))
-	assert("listOfInputs"==df.columns(4))
-	assert("listOfOutputs"==df.columns(5))
-  assert("listOfScriptWitness"==df.columns(6))
-	assert("lockTime"==df.columns(7))
+  	assert("marker"==df.columns(2))
+    	assert("flag"==df.columns(3))
+	assert("inCounter"==df.columns(4))
+	assert("outCounter"==df.columns(5))
+	assert("listOfInputs"==df.columns(6))
+	assert("listOfOutputs"==df.columns(7))
+  assert("listOfScriptWitnessItem"==df.columns(8))
+	assert("lockTime"==df.columns(9))
 	// validate transaction data
 	val currentTransactionHash = df.select("currentTransactionHash").collect
 	val currentTransactionHashExpected : Array[Byte] = Array(0x3B.toByte,0xA3.toByte,0xED.toByte,0xFD.toByte,0x7A.toByte,0x7B.toByte,0x12.toByte,0xB2.toByte,0x7A.toByte,0xC7.toByte,0x2C.toByte,0x3E.toByte,0x67.toByte,0x76.toByte,0x8F.toByte,0x61.toByte,
@@ -228,17 +230,52 @@ override def beforeAll(): Unit = {
 	// check first if structure is correct
 	assert("currentTransactionHash"==df.columns(0))
 	assert("version"==df.columns(1))
-	assert("inCounter"==df.columns(2))
-	assert("outCounter"==df.columns(3))
-	assert("listOfInputs"==df.columns(4))
-	assert("listOfOutputs"==df.columns(5))
-  assert("listOfScriptWitness"==df.columns(6))
-	assert("lockTime"==df.columns(7))
+  assert("marker"==df.columns(2))
+  assert("flag"==df.columns(3))
+	assert("inCounter"==df.columns(4))
+	assert("outCounter"==df.columns(5))
+	assert("listOfInputs"==df.columns(6))
+	assert("listOfOutputs"==df.columns(7))
+  assert("listOfScriptWitnessItem"==df.columns(8))
+	assert("lockTime"==df.columns(9))
 	// validate transaction data
 	val noOfTransactions = df.count
 	assert(470==noOfTransactions)
 
 }
+
+"The random scriptwitness2 block on DFS" should "be read in dataframe" in {
+	Given("Genesis Block on DFSCluster")
+	// create input directory
+     dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+    	// put testdata on DFS
+    	val fileName: String="scriptwitness2.blk"
+    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
+    	val inputFile=new Path(fileNameFullLocal)
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading Genesis block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
+	Then("all fields should be readable trough Spark SQL")
+	// check first if structure is correct
+	assert("currentTransactionHash"==df.columns(0))
+	assert("version"==df.columns(1))
+  assert("marker"==df.columns(2))
+  assert("flag"==df.columns(3))
+	assert("inCounter"==df.columns(4))
+	assert("outCounter"==df.columns(5))
+	assert("listOfInputs"==df.columns(6))
+	assert("listOfOutputs"==df.columns(7))
+  assert("listOfScriptWitnessItem"==df.columns(8))
+	assert("lockTime"==df.columns(9))
+	// validate transaction data
+	val noOfTransactions = df.count
+	assert(4699==noOfTransactions)
+
+}
+
 
 
 

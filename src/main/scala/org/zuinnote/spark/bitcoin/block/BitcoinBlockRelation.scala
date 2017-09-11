@@ -74,6 +74,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 				StructField("hashMerkleRoot", BinaryType, false),
 				StructField("transactions",ArrayType(StructType(Seq
 					(StructField("version", IntegerType, false),
+          StructField("marker", ByteType, false),
+          StructField("flag", ByteType, false),
 					StructField("inCounter",BinaryType, false),
 					StructField("outCounter", BinaryType, false),
 					StructField("listOfInputs",ArrayType(StructType(Seq(
@@ -86,12 +88,15 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 						StructField("value",LongType,false),
 						StructField("txOutScriptLength",BinaryType,false),
 						StructField("txOutScript",BinaryType,false)))), false),
-          StructField("listOfScriptWitness",ArrayType(StructType(Seq(
-  						StructField("witnessScriptLength",BinaryType,false),
-  						StructField("witnessScript",BinaryType,false)))), false),
-					StructField("lockTime", IntegerType, false)
-				))),false)
-			))
+            StructField("listOfScriptWitnessItem",ArrayType(StructType(Seq(
+      						StructField("stackItemCounter",BinaryType,false),
+                  StructField("scriptWitnessList",ArrayType(StructType(Seq(
+                    StructField("witnessScriptLength",BinaryType,false),
+                    StructField("witnessScript",BinaryType,false)
+                  )), false)
+      						))), false)),
+            	StructField("lockTime", IntegerType, false)))
+			))))
     }
 
 
@@ -129,10 +134,12 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 		var transactionArray=new Array[Any](hadoopKeyValueTuple._2.getTransactions().size())
 		var i=0
 		for (currentTransaction <- hadoopKeyValueTuple._2.getTransactions()) {
-			val currentTransactionStructArray = new Array[Any](7)
+			val currentTransactionStructArray = new Array[Any](9)
 			currentTransactionStructArray(0)=currentTransaction.getVersion
-			currentTransactionStructArray(1)=currentTransaction.getInCounter
-			currentTransactionStructArray(2)=currentTransaction.getOutCounter
+      currentTransactionStructArray(1)=currentTransaction.getMarker
+      currentTransactionStructArray(2)=currentTransaction.getFlag
+			currentTransactionStructArray(3)=currentTransaction.getInCounter
+			currentTransactionStructArray(4)=currentTransaction.getOutCounter
 			val currentTransactionListOfInputs = new Array[Any](currentTransaction.getListOfInputs().size())
 			// map inputs
 			var j=0
@@ -146,7 +153,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 				currentTransactionListOfInputs(j)=Row.fromSeq(currentTransactionInputStructArray)
 				j+=1
 			}
-			currentTransactionStructArray(3)=currentTransactionListOfInputs
+			currentTransactionStructArray(5)=currentTransactionListOfInputs
 			val currentTransactionListOfOutputs = new Array[Any](currentTransaction.getListOfOutputs().size())
 			// map outputs
 			j=0;
@@ -158,20 +165,32 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 				currentTransactionListOfOutputs(j)=Row.fromSeq(currentTransactionOutputStructArray)
 				j+=1
 			}
-			currentTransactionStructArray(4)=currentTransactionListOfOutputs
+			currentTransactionStructArray(6)=currentTransactionListOfOutputs
+
+
       // map scriptWitness
-      val currentTransactionListOfScriptWitness = new Array[Any](currentTransaction.getBitcoinScriptWitness().size())
-			j=0;
-			for (currentTransactionScriptWitness <-currentTransaction.getBitcoinScriptWitness) {
-				val currentTransactionScriptWitnessStructArray = new Array[Any](2)
-				currentTransactionScriptWitnessStructArray(0) = currentTransactionScriptWitness.getWitnessScriptLength
-				currentTransactionScriptWitnessStructArray(1) = currentTransactionScriptWitness.getWitnessScript
-				currentTransactionListOfScriptWitness(j)=Row.fromSeq(currentTransactionScriptWitnessStructArray)
-				j+=1
-			}
-			currentTransactionStructArray(5)=currentTransactionListOfScriptWitness
+      val currentTransactionListOfScriptWitnessItem = new Array[Any](currentTransaction.getBitcoinScriptWitness().size())
+      j=0;
+      for (currentTransactionScriptWitnessItem <-currentTransaction.getBitcoinScriptWitness) {
+        val currentTransactionScriptWitnessStructArray = new Array[Any](2)
+        currentTransactionScriptWitnessStructArray(0) = currentTransactionScriptWitnessItem.getStackItemCounter
+        val currentScriptWitnessListStructArray = new Array[Any](currentTransactionScriptWitnessItem.getScriptWitnessList().size())
+        var k=0;
+        for (currentScriptWitness <- currentTransactionScriptWitnessItem.getScriptWitnessList) {
+              val currentScriptWitnessStructArray = new Array[Any](2)
+              currentScriptWitnessStructArray(0)= currentScriptWitness.getWitnessScriptLength
+              currentScriptWitnessStructArray(1)= currentScriptWitness.getWitnessScript
+              currentScriptWitnessListStructArray(k)=Row.fromSeq(currentScriptWitnessStructArray)
+             k+=1
+        }
+        currentTransactionScriptWitnessStructArray(1) = currentScriptWitnessListStructArray
+        currentTransactionListOfScriptWitnessItem(j)=Row.fromSeq(currentTransactionScriptWitnessStructArray)
+        j+=1
+      }
+      currentTransactionStructArray(7)=currentTransactionListOfScriptWitnessItem
+
       // locktime
-			currentTransactionStructArray(6)=currentTransaction.getLockTime
+			currentTransactionStructArray(8)=currentTransaction.getLockTime
 			transactionArray(i)=Row.fromSeq(currentTransactionStructArray)
 
 			i+=1

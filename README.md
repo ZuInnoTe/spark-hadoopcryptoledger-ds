@@ -15,6 +15,9 @@ Find here the status from the Continuous Integration service: https://travis-ci.
 
 # Release Notes
 
+## Version 1.0.5
+Version based on hadoocryptoledger library 1.0.5 (basic support for Segwit). Segwit information are added to the Spark datasource schema.
+
 ## Version 1.0.4
 Version based on hadoopcryptoledger library 1.0.4 (quality management release). Fixed critical [issue 2](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/2). Added integration test to ensure quality.
 
@@ -40,7 +43,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.4
+version: 1.0.5
 
 ## Scala 2.11
  
@@ -48,7 +51,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.4
+version: 1.0.5
 
 
 # Develop
@@ -79,7 +82,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.4" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.5" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
@@ -103,38 +106,43 @@ OPTIONS (path "/home/user/bitcoin/input", magic "F9BEB4D9")
 # Schemas
 ## Format: org.zuinnote.spark.bitcoin.block
 ```
-root
- |-- blockSize: integer (nullable = false)
- |-- magicNo: integer (nullable = false)
- |-- version: integer (nullable = false)
- |-- time: integer (nullable = false)
- |-- bits: binary (nullable = false)
- |-- nonce: integer (nullable = false)
- |-- transactionCounter: long (nullable = false)
- |-- hashPrevBlock: binary (nullable = false)
- |-- hashMerkleRoot: binary (nullable = false)
- |-- transactions: array (nullable = false)
- |    |-- element: struct (containsNull = true)
- |    |    |-- version: integer (nullable = false)
- |    |    |-- inCounter: binary (nullable = false)
- |    |    |-- outCounter: binary (nullable = false)
- |    |    |-- listOfInputs: array (nullable = false)
- |    |    |    |-- element: struct (containsNull = false)
- |    |    |    |    |-- prevTransactionHash: binary (nullable = false)
- |    |    |    |    |-- previousTxOutIndex: long (nullable = false)
- |    |    |    |    |-- txInScriptLength: binary (nullable = false)
- |    |    |    |    |-- txInScript: binary (nullable = false)
- |    |    |    |    |-- seqNo: long (nullable = false)
- |    |    |-- listOfOutputs: array (nullable = false)
- |    |    |    |-- element: struct (containsNull = false)
- |    |    |    |    |-- value: long (nullable = false)
- |    |    |    |    |-- txOutScriptLength: binary (nullable = false)
- |    |    |    |    |-- txOutScript: binary (nullable = false)
- |    |    |-- lockTime: integer (nullable = false)
+root                                                                                                                                                                                                        
+ |-- blockSize: integer (nullable = false)                                                                                                                                                                  
+ |-- magicNo: binary (nullable = false)                                                                                                                                                                     
+ |-- version: integer (nullable = false)                                                                                                                                                                    
+ |-- time: integer (nullable = false)                                                                                                                                                                       
+ |-- bits: binary (nullable = false)                                                                                                                                                                        
+ |-- nonce: integer (nullable = false)                                                                                                                                                                      
+ |-- transactionCounter: long (nullable = false)                                                                                                                                                            
+ |-- hashPrevBlock: binary (nullable = false)                                                                                                                                                               
+ |-- hashMerkleRoot: binary (nullable = false)                                                                                                                                                              
+ |-- transactions: array (nullable = false)                                                                                                                                                                 
+ |    |-- element: struct (containsNull = true)                                                                                                                                                             
+ |    |    |-- version: integer (nullable = false)                                                                                                                                                          
+ |    |    |-- inCounter: binary (nullable = false)                                                                                                                                                         
+ |    |    |-- outCounter: binary (nullable = false)                                                                                                                                                        
+ |    |    |-- listOfInputs: array (nullable = false)                                                                                                                                                       
+ |    |    |    |-- element: struct (containsNull = true)                                                                                                                                                   
+ |    |    |    |    |-- prevTransactionHash: binary (nullable = false)                                                                                                                                     
+ |    |    |    |    |-- previousTxOutIndex: long (nullable = false)                                                                                                                                        
+ |    |    |    |    |-- txInScriptLength: binary (nullable = false)                                                                                                                                        
+ |    |    |    |    |-- txInScript: binary (nullable = false)                                                                                                                                              
+ |    |    |    |    |-- seqNo: long (nullable = false)                                                                                                                                                     
+ |    |    |-- listOfOutputs: array (nullable = false)                                                                                                                                                      
+ |    |    |    |-- element: struct (containsNull = true)                                                                                                                                                   
+ |    |    |    |    |-- value: long (nullable = false)                                                                                                                                                     
+ |    |    |    |    |-- txOutScriptLength: binary (nullable = false)                                                                                                                                       
+ |    |    |    |    |-- txOutScript: binary (nullable = false)                                                                                                                                             
+ |    |    |-- listOfScriptWitness: array (nullable = false)                                                                                                                                                
+ |    |    |    |-- element: struct (containsNull = true)                                                                                                                                                   
+ |    |    |    |    |-- witnessScriptLength: binary (nullable = false)                                                                                                                                     
+ |    |    |    |    |-- witnessScript: binary (nullable = false)                                                                                                                              
+ |    |    |-- lockTime: integer (nullable = false)                                                                                                                                                         
 
 ```
 ## Format: org.zuinnote.spark.bitcoin.transaction
 ```
+                                                                      
 root
  |-- currentTransactionHash: binary (nullable = false)
  |-- version: integer (nullable = false)
@@ -151,8 +159,12 @@ root
  |    |-- element: struct (containsNull = false)
  |    |    |-- value: long (nullable = false)
  |    |    |-- txOutScriptLength: binary (nullable = false)
- |    |    |-- txOutScript: binary (nullable = false)
- |-- lockTime: integer (nullable = false)
+ |    |    |-- txOutScript: binary (nullable = false)                                                                                                                                          
+ |-- listOfScriptWitness: array (nullable = false)                                                                                                                                                
+ |    |-- element: struct (containsNull = true)                                                                                                                                                   
+ |    |    |-- witnessScriptLength: binary (nullable = false)                                                                                                                                     
+ |    |    |-- witnessScript: binary (nullable = false)                                                                                                                                           
+ |-- lockTime: integer (nullable = false)                                                                                                                                                         
 ```
 ## Format: org.zuinnote.spark.bitcoin.transactionelement
 ```

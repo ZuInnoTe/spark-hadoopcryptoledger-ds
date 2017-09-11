@@ -46,7 +46,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.5
+version: 1.0.6
 
 ## Scala 2.11
  
@@ -54,7 +54,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.5
+version: 1.0.6
 
 
 # Develop

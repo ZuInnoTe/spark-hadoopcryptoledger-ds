@@ -15,8 +15,11 @@ Find here the status from the Continuous Integration service: https://travis-ci.
 
 # Release Notes
 
+## Version 1.0.6
+Version based on hadoocryptoledger library 1.0.6 (support for Segwit). More segwit information are added to the Spark datasource schema.
+
 ## Version 1.0.5
-Version based on hadoocryptoledger library 1.0.5 (basic support for Segwit). Segwit information are added to the Spark datasource schema.
+Version based on hadoocryptoledger library 1.0.5 (basic support for Segwit). Segwit information are added to the Spark datasource schema. Please do not use.
 
 ## Version 1.0.4
 Version based on hadoopcryptoledger library 1.0.4 (quality management release). Fixed critical [issue 2](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/2). Added integration test to ensure quality.

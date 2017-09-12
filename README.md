@@ -14,22 +14,7 @@ This datasource is available on [Spark-packages.org](https://spark-packages.org/
 Find here the status from the Continuous Integration service: https://travis-ci.org/ZuInnoTe/spark-hadoopcryptoledger-ds/
 
 # Release Notes
-
-## Version 1.0.6
-Version based on hadoocryptoledger library 1.0.6 (support for Segwit). More segwit information are added to the Spark datasource schema.
-
-## Version 1.0.5
-Version based on hadoocryptoledger library 1.0.5 (basic support for Segwit). Segwit information are added to the Spark datasource schema. Please do not use.
-
-## Version 1.0.4
-Version based on hadoopcryptoledger library 1.0.4 (quality management release). Fixed critical [issue 2](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/2). Added integration test to ensure quality.
-
-
-## Version 1.0.3
-Version based on hadoopcryptoledger library 1.0.3 and the new mapreduce API
-
-## Version 1.0.2
-Original version based on hadoopcryptoledger library 1.0.2
+Find the latest release information [here](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/releases)
 
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
@@ -85,7 +70,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.5" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.6" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")

@@ -248,9 +248,9 @@ override def beforeAll(): Unit = {
     	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
     	val inputFile=new Path(fileNameFullLocal)
     	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
-	When("reading Genesis block using datasource")
+	When("reading scriptwitness block using datasource")
 	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
-	Then("all fields should be readable trough Spark SQL")
+	Then("schema should be correct and number of transactions")
 	// check first if structure is correct
 	assert("blockSize"==df.columns(0))
 	assert("magicNo"==df.columns(1))
@@ -287,5 +287,68 @@ override def beforeAll(): Unit = {
 
 }
 
+
+"The scriptwitness2 block on DFS" should "be read in dataframe" in {
+	Given("Scriptwitness2 Block on DFSCluster")
+	// create input directory
+   dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+    	// put testdata on DFS
+    	val fileName: String="scriptwitness2.blk"
+    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
+    	val inputFile=new Path(fileNameFullLocal)
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading scriptwitness2 block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
+	Then("schema should be correct and number of transactions")
+	// check first if structure is correct
+	assert("blockSize"==df.columns(0))
+	assert("magicNo"==df.columns(1))
+	assert("version"==df.columns(2))
+	assert("time"==df.columns(3))
+	assert("bits"==df.columns(4))
+	assert("nonce"==df.columns(5))
+	assert("transactionCounter"==df.columns(6))
+	assert("hashPrevBlock"==df.columns(7))
+	assert("hashMerkleRoot"==df.columns(8))
+	assert("transactions"==df.columns(9))
+  // read data
+  val blockSize = df.select("blockSize").collect
+  val magicNo = df.select("magicNo").collect
+  val magicNoExpected : Array[Byte] = Array(0xF9.toByte,0xBE.toByte,0xB4.toByte,0xD9.toByte)
+  	val time = df.select("time").collect
+  val version = df.select("version").collect
+  val bits = df.select("bits").collect
+  val bitsExpected: Array[Byte] = Array(0xE9.toByte,0x3C.toByte,0x01.toByte,0x18.toByte)
+  	val transactionCounter = df.select("transactionCounter").collect
+  val nonce = df.select("nonce").collect
+  // first block
+	// validate block data
+	assert(1000031==blockSize(0).getInt(0))
+	assert(magicNoExpected.deep==magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
+	assert(536870912==version(0).getInt(0))
+	assert(1503863706==time(0).getInt(0))
+	assert(bitsExpected.deep==bits(0).get(0).asInstanceOf[Array[Byte]].deep)
+	assert(-706531299==nonce(0).getInt(0))
+	assert(2191 ==transactionCounter(0).getLong(0))
+
+  // second block
+  // validate block data
+  assert(999304==blockSize(1).getInt(0))
+  assert(magicNoExpected.deep==magicNo(1).get(0).asInstanceOf[Array[Byte]].deep)
+  assert(536870912==version(1).getInt(0))
+  assert(1503836377==time(1).getInt(0))
+  assert(bitsExpected.deep==bits(1).get(0).asInstanceOf[Array[Byte]].deep)
+  assert(-566627396==nonce(1).getInt(0))
+  assert(2508 ==transactionCounter(1).getLong(0))
+ // check transactions
+  val transactionsDF=df.select(explode(df("transactions")).alias("transactions"))
+ val transactionsDFCount = transactionsDF.count
+ val transActBothBlocks= 2191+2508
+  assert(transActBothBlocks==transactionsDFCount)
+
+}
 
 }

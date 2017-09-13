@@ -258,7 +258,7 @@ override def beforeAll(): Unit = {
     	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
 	When("reading Genesis block using datasource")
 	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
-	Then("all fields should be readable trough Spark SQL")
+  Then("all fields should be readable trough Spark SQL")
 	// check first if structure is correct
 	assert("currentTransactionHash"==df.columns(0))
 	assert("version"==df.columns(1))

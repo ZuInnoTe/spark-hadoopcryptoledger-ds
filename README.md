@@ -7,7 +7,6 @@ Currently this datasource supports the following formats of the HadoopCryptoLedg
 * Bitcoin Blockchain
   * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
   * Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
-  * Bitcoin TransactionElement Datasource format: org.zuinnote.spark.bitcoin.transactionelement
 
 This datasource is available on [Spark-packages.org](https://spark-packages.org/package/ZuInnoTe/spark-hadoopcryptoledger-ds) and on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Chadoopcryptoledger).
 

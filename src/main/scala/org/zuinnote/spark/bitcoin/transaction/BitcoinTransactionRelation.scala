@@ -56,7 +56,7 @@ import org.zuinnote.spark.bitcoin.util.BitcoinTransactionFile
 *
 */
 
-case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,isSplitable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)
+case class BitcoinTransactionRelation(location: String,maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,isSplitable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
 (@transient val sqlContext: SQLContext)
   extends BaseRelation with TableScan
        with Serializable {

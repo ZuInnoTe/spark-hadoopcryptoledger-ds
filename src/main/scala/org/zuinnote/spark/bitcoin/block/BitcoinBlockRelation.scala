@@ -55,48 +55,123 @@ import org.zuinnote.spark.bitcoin.util.BitcoinBlockFile
 *
 */
 
-case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,isSplitable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)
+case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,isSplitable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
 (@transient val sqlContext: SQLContext)
   extends BaseRelation with TableScan
        with Serializable {
   val LOG = LogFactory.getLog(BitcoinBlockRelation.getClass);
 
   override def schema: StructType = {
+    val structNoAuxPow = StructType(Seq(StructField("blockSize", IntegerType, false),
+                          StructField("magicNo", BinaryType, false),
+      StructField("version", IntegerType, false),
+      StructField("time", IntegerType, false),
+      StructField("bits", BinaryType, false),
+      StructField("nonce", IntegerType, false),
+      StructField("transactionCounter", LongType, false),
+      StructField("hashPrevBlock", BinaryType, false),
+      StructField("hashMerkleRoot", BinaryType, false),
+      StructField("transactions",ArrayType(StructType(Seq
+        (StructField("version", IntegerType, false),
+        StructField("marker", ByteType, false),
+        StructField("flag", ByteType, false),
+        StructField("inCounter",BinaryType, false),
+        StructField("outCounter", BinaryType, false),
+        StructField("listOfInputs",ArrayType(StructType(Seq(
+          StructField("prevTransactionHash",BinaryType,false),
+          StructField("previousTxOutIndex",LongType,false),
+          StructField("txInScriptLength",BinaryType,false),
+          StructField("txInScript",BinaryType,false),
+          StructField("seqNo",LongType,false)))), false),
+        StructField("listOfOutputs",ArrayType(StructType(Seq(
+          StructField("value",LongType,false),
+          StructField("txOutScriptLength",BinaryType,false),
+          StructField("txOutScript",BinaryType,false)))), false),
+          StructField("listOfScriptWitnessItem",ArrayType(StructType(Seq(
+                StructField("stackItemCounter",BinaryType,false),
+                StructField("scriptWitnessList",ArrayType(StructType(Seq(
+                  StructField("witnessScriptLength",BinaryType,false),
+                  StructField("witnessScript",BinaryType,false)
+                )), false)
+                ))), false)),
+            StructField("lockTime", IntegerType, false)))
+    ))))
 
-      return StructType(Seq(StructField("blockSize", IntegerType, false),
-                            StructField("magicNo", BinaryType, false),
-				StructField("version", IntegerType, false),
-				StructField("time", IntegerType, false),
-				StructField("bits", BinaryType, false),
-				StructField("nonce", IntegerType, false),
-				StructField("transactionCounter", LongType, false),
-				StructField("hashPrevBlock", BinaryType, false),
-				StructField("hashMerkleRoot", BinaryType, false),
-				StructField("transactions",ArrayType(StructType(Seq
-					(StructField("version", IntegerType, false),
-          StructField("marker", ByteType, false),
-          StructField("flag", ByteType, false),
-					StructField("inCounter",BinaryType, false),
-					StructField("outCounter", BinaryType, false),
-					StructField("listOfInputs",ArrayType(StructType(Seq(
-						StructField("prevTransactionHash",BinaryType,false),
-						StructField("previousTxOutIndex",LongType,false),
-						StructField("txInScriptLength",BinaryType,false),
-						StructField("txInScript",BinaryType,false),
-						StructField("seqNo",LongType,false)))), false),
-					StructField("listOfOutputs",ArrayType(StructType(Seq(
-						StructField("value",LongType,false),
-						StructField("txOutScriptLength",BinaryType,false),
-						StructField("txOutScript",BinaryType,false)))), false),
-            StructField("listOfScriptWitnessItem",ArrayType(StructType(Seq(
-      						StructField("stackItemCounter",BinaryType,false),
-                  StructField("scriptWitnessList",ArrayType(StructType(Seq(
-                    StructField("witnessScriptLength",BinaryType,false),
-                    StructField("witnessScript",BinaryType,false)
-                  )), false)
-      						))), false)),
-            	StructField("lockTime", IntegerType, false)))
-			))))
+    val structAuxPow = StructType(Seq(StructField("blockSize", IntegerType, false),
+                          StructField("magicNo", BinaryType, false),
+      StructField("version", IntegerType, false),
+      StructField("time", IntegerType, false),
+      StructField("bits", BinaryType, false),
+      StructField("nonce", IntegerType, false),
+      StructField("transactionCounter", LongType, false),
+      StructField("hashPrevBlock", BinaryType, false),
+      StructField("hashMerkleRoot", BinaryType, false),
+      StructField("transactions",ArrayType(StructType(Seq
+        (StructField("version", IntegerType, false),
+        StructField("marker", ByteType, false),
+        StructField("flag", ByteType, false),
+        StructField("inCounter",BinaryType, false),
+        StructField("outCounter", BinaryType, false),
+        StructField("listOfInputs",ArrayType(StructType(Seq(
+          StructField("prevTransactionHash",BinaryType,false),
+          StructField("previousTxOutIndex",LongType,false),
+          StructField("txInScriptLength",BinaryType,false),
+          StructField("txInScript",BinaryType,false),
+          StructField("seqNo",LongType,false)))), false),
+        StructField("listOfOutputs",ArrayType(StructType(Seq(
+          StructField("value",LongType,false),
+          StructField("txOutScriptLength",BinaryType,false),
+          StructField("txOutScript",BinaryType,false)))), false),
+          StructField("listOfScriptWitnessItem",ArrayType(StructType(Seq(
+                StructField("stackItemCounter",BinaryType,false),
+                StructField("scriptWitnessList",ArrayType(StructType(Seq(
+                  StructField("witnessScriptLength",BinaryType,false),
+                  StructField("witnessScript",BinaryType,false)
+                )), false)
+                ))), false)),
+            StructField("lockTime", IntegerType, false)))
+    )),
+      StructField("auxPOW",StructType(Seq(
+            StructField("version", IntegerType, false),
+            StructField("coinbaseTransaction",StructType(Seq
+              (StructField("version", IntegerType, false),
+              StructField("inCounter",BinaryType, false),
+              StructField("outCounter", BinaryType, false),
+              StructField("listOfInputs",ArrayType(StructType(Seq(
+                StructField("prevTransactionHash",BinaryType,false),
+                StructField("previousTxOutIndex",LongType,false),
+                StructField("txInScriptLength",BinaryType,false),
+                StructField("txInScript",BinaryType,false),
+                StructField("seqNo",LongType,false)))), false),
+              StructField("listOfOutputs",ArrayType(StructType(Seq(
+                StructField("value",LongType,false),
+                StructField("txOutScriptLength",BinaryType,false),
+                StructField("txOutScript",BinaryType,false)))), false),
+              StructField("lockTime", IntegerType, false))), false),
+            StructField("parentBlockHeaderHash", BinaryType, false),
+            StructField("coinbaseBranch", StructType(Seq(
+                  StructField("numberOfLinks", BinaryType, false),
+                  StructField("links", ArrayType(BinaryType), false),
+                  StructField("branchSideBitmask", BinaryType, false)
+            )), false),
+            StructField("auxBlockChainBranch", StructType(Seq(
+                  StructField("numberOfLinks", BinaryType, false),
+                  StructField("links", ArrayType(BinaryType), false),
+                  StructField("branchSideBitmask", BinaryType, false)
+            )), false),
+            StructField("parentBlockHeader",StructType(Seq(
+              StructField("version", IntegerType, false),
+              StructField("previousBlockHash", BinaryType, false),
+              StructField("merkleRoot",BinaryType, false),
+              StructField("time", IntegerType, false),
+              StructField("bits", BinaryType, false),
+              StructField("nonce", IntegerType, false)
+            )), false))))))
+
+      if (readAuxPOW) {
+      return structAuxPow
+      }
+      return structNoAuxPow
     }
 
 
@@ -114,6 +189,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
  	hadoopConf.set(AbstractBitcoinRecordReader.CONF_FILTERMAGIC,magic)
  	hadoopConf.set(AbstractBitcoinRecordReader.CONF_USEDIRECTBUFFER,String.valueOf(useDirectBuffer))
  	hadoopConf.set(AbstractBitcoinFileInputFormat.CONF_ISSPLITABLE, String.valueOf(isSplitable))
+  hadoopConf.set(AbstractBitcoinRecordReader.CONF_READAUXPOW,String.valueOf(readAuxPOW))
         // read BitcoinBlock
 	val bitcoinBlockRDD = BitcoinBlockFile.load(sqlContext, location, hadoopConf)
         // map to schema
@@ -196,6 +272,92 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 			i+=1
 		}
 		rowArray(9) = transactionArray
+    if (readAuxPOW) { // add auxPow information
+      val auxPowStructArray = new Array[Any](6)
+        // version
+        auxPowStructArray(0) = hadoopKeyValueTuple._2.getAuxPOW.getVersion
+        // coinbaseTransaction
+        val coinbaseTransactionStructArray = new Array[Any](6)
+          // version
+          coinbaseTransactionStructArray(0)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getVersion
+          // inCounter
+          coinbaseTransactionStructArray(1)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getInCounter
+          // outCounter
+          coinbaseTransactionStructArray(2)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getOutCounter
+          // listOfInputs
+          val currentCoinBaseTransactionListOfInputs = new Array[Any](hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getListOfInputs.size())
+          var j=0;
+          for (currentCoinBaseTransactionInput <- hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getListOfInputs) {
+            val coinbaseTransactionInputStruct = new Array[Any](5)
+             // prevTransactionHash
+             coinbaseTransactionInputStruct(0)=currentCoinBaseTransactionInput.getPrevTransactionHash
+             // previousTxOutIndex
+             coinbaseTransactionInputStruct(1)=currentCoinBaseTransactionInput.getPreviousTxOutIndex
+             // txInScriptLength
+             coinbaseTransactionInputStruct(2)=currentCoinBaseTransactionInput.getTxInScriptLength
+             // txInScript
+             coinbaseTransactionInputStruct(3)=currentCoinBaseTransactionInput.getTxInScript
+             // seqNo
+             coinbaseTransactionInputStruct(4)=currentCoinBaseTransactionInput.getSeqNo
+             currentCoinBaseTransactionListOfInputs(j)=Row.fromSeq(coinbaseTransactionInputStruct)
+             j+=1
+          }
+          coinbaseTransactionStructArray(3)=currentCoinBaseTransactionListOfInputs
+          // listOfOutputs
+          val currentCoinBaseTransactionListOfOutputs = new Array[Any](hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getListOfOutputs.size())
+          j=0;
+          for (currentCoinBaseTransactionOutput <- hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getListOfOutputs) {
+          val coinbaseTransactionOutputStruct = new Array[Any](3)
+            // value
+            coinbaseTransactionOutputStruct(0)=currentCoinBaseTransactionOutput.getValue
+            // txOutScriptLength
+            coinbaseTransactionOutputStruct(1)=currentCoinBaseTransactionOutput.getTxOutScriptLength
+            // txOutScript
+            coinbaseTransactionOutputStruct(2)=currentCoinBaseTransactionOutput.getTxOutScript
+            currentCoinBaseTransactionListOfOutputs(j)=Row.fromSeq(coinbaseTransactionOutputStruct)
+            j+=1
+          }
+            coinbaseTransactionStructArray(4)=currentCoinBaseTransactionListOfOutputs
+          // locktime
+          coinbaseTransactionStructArray(5)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseTransaction.getLockTime
+        auxPowStructArray(1)=Row.fromSeq(coinbaseTransactionStructArray)
+        // parentBlockHeaderHash
+        auxPowStructArray(2)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeaderHash
+        // coinbaseBranch
+        val coinbaseBranchStructArray = new Array[Any](3)
+        coinbaseBranchStructArray(0)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseBranch.getNumberOfLinks
+        val coinbaseBranchLinks = new Array[Any](hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseBranch.getLinks.size())
+        j=0
+        for (currentCoinbaseBranchLink <- hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseBranch.getLinks) {
+          coinbaseBranchLinks(j)=currentCoinbaseBranchLink
+          j+=1
+        }
+        coinbaseBranchStructArray(1)=coinbaseBranchLinks
+        coinbaseBranchStructArray(2)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseBranch.getBranchSideBitmask
+        auxPowStructArray(3)=Row.fromSeq(coinbaseBranchStructArray)
+        // auxBlockChainBranch
+        val auxBlockChainBranchStructArray = new Array[Any](3)
+        auxBlockChainBranchStructArray(0)=hadoopKeyValueTuple._2.getAuxPOW.getAuxBlockChainBranch.getNumberOfLinks
+        val auxBlockChainBranchLinks = new Array[Any](hadoopKeyValueTuple._2.getAuxPOW.getAuxBlockChainBranch.getLinks.size())
+        j=0
+        for (currentAuxBlockChainBranchLink <- hadoopKeyValueTuple._2.getAuxPOW.getAuxBlockChainBranch.getLinks) {
+          auxBlockChainBranchLinks(j)=currentAuxBlockChainBranchLink
+          j+=1
+        }
+        auxBlockChainBranchStructArray(1)=auxBlockChainBranchLinks
+        auxBlockChainBranchStructArray(2)=hadoopKeyValueTuple._2.getAuxPOW.getCoinbaseBranch.getBranchSideBitmask
+        auxPowStructArray(4)=Row.fromSeq(auxBlockChainBranchStructArray)
+        // parentBlockHeader
+        val parentBlockHeaderStructArray = new Array[Any](6)
+        parentBlockHeaderStructArray(0)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getVersion
+        parentBlockHeaderStructArray(1)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getPreviousBlockHash
+        parentBlockHeaderStructArray(2)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getMerkleRoot
+        parentBlockHeaderStructArray(3)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getTime
+        parentBlockHeaderStructArray(4)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getBits
+        parentBlockHeaderStructArray(5)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getNonce
+        auxPowStructArray(5)=Row.fromSeq(parentBlockHeaderStructArray)
+      rowArray(10) =Row.fromSeq(auxPowStructArray)
+    }
 	 	// add row representing one Bitcoin Block
           	Some(Row.fromSeq(rowArray))
 		}

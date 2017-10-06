@@ -21,8 +21,8 @@ import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types.StructType
 
 import org.zuinnote.hadoop.bitcoin.format.common._
-import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
-   
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._
+
 /**
 * Author: Jörn Franke <zuinnote@gmail.com>
 *
@@ -51,9 +51,10 @@ class DefaultSource
       val magic = parameters.getOrElse("magic", AbstractBitcoinRecordReader.DEFAULT_MAGIC)
       val useDirectBuffer = parameters.getOrElse("useDirectBuffer", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER)).toBoolean
       val isSplitable = parameters.getOrElse("isSplitable", String.valueOf(AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)).toBoolean
+      val readAuxPOW = parameters.getOrElse("readAuxPOW", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)).toBoolean
       // parse the parameters into hadoop objects
-      BitcoinTransactionRelation(path, maxBlockSize, magic, useDirectBuffer, isSplitable)(sqlContext)
+      BitcoinTransactionRelation(path, maxBlockSize, magic, useDirectBuffer, isSplitable,readAuxPOW)(sqlContext)
   }
 
- 
+
 }

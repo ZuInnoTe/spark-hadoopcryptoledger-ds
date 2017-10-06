@@ -351,4 +351,57 @@ override def beforeAll(): Unit = {
 
 }
 
+"The Namecoin block on DFS with AuxPOW information" should "be read in dataframe" in {
+	Given("Namecoin Block on DFSCluster")
+	// create input directory
+   dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+    	// put testdata on DFS
+    	val fileName: String="namecointhreedifferentopinoneblock.blk"
+    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile()
+    	val inputFile=new Path(fileNameFullLocal)
+    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading scriptwitness block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4FE").option("readAuxPOW","true").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
+	Then("schema should be correct and number of transactions")
+  df.printSchema
+	// check first if structure is correct
+	assert("blockSize"==df.columns(0))
+	assert("magicNo"==df.columns(1))
+	assert("version"==df.columns(2))
+	assert("time"==df.columns(3))
+	assert("bits"==df.columns(4))
+	assert("nonce"==df.columns(5))
+	assert("transactionCounter"==df.columns(6))
+	assert("hashPrevBlock"==df.columns(7))
+	assert("hashMerkleRoot"==df.columns(8))
+	assert("transactions"==df.columns(9))
+  	assert("auxPOW"==df.columns(10))
+	// validate block data
+	val blockSize = df.select("blockSize").collect
+	assert(3125==blockSize(0).getInt(0))
+	val magicNo = df.select("magicNo").collect
+	val magicNoExpected : Array[Byte] = Array(0xF9.toByte,0xBE.toByte,0xB4.toByte,0xFE.toByte)
+	assert(magicNoExpected.deep==magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
+	val version = df.select("version").collect
+	assert(65796==version(0).getInt(0))
+	val time = df.select("time").collect
+	assert(1506767051==time(0).getInt(0))
+	val bits = df.select("bits").collect
+	val bitsExpected: Array[Byte] = Array(0x71.toByte,0x63.toByte,0x01.toByte,0x18.toByte)
+	assert(bitsExpected.deep==bits(0).get(0).asInstanceOf[Array[Byte]].deep)
+	val nonce = df.select("nonce").collect
+	assert(0==nonce(0).getInt(0))
+	val transactionCounter = df.select("transactionCounter").collect
+	assert(7==transactionCounter(0).getLong(0))
+		// validate transactions
+	val transactionsDF=df.select(explode(df("transactions")).alias("transactions"))
+
+	val transactionsDFCount = transactionsDF.count
+	assert(7==transactionsDFCount)
+
+}
+
 }

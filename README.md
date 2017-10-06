@@ -21,6 +21,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
 * "maxblockSize" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.maxblocksize"
 * "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"
 * "isSplitable" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.issplitable"
+* "readAuxPOW" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.readauxpow"
 
 
 # Dependency
@@ -30,7 +31,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.7
+version: 1.0.8
 
 ## Scala 2.11
  
@@ -38,7 +39,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.7
+version: 1.0.8
 
 
 # Develop
@@ -69,7 +70,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.10:1.0.7" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.0.8" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
@@ -91,7 +92,7 @@ OPTIONS (path "/home/user/bitcoin/input", magic "F9BEB4D9")
 ```
 
 # Schemas
-## Format: org.zuinnote.spark.bitcoin.block
+## Format: org.zuinnote.spark.bitcoin.block (without readAuxPOW=true)
 ```
 root
  |-- blockSize: integer (nullable = false)
@@ -130,6 +131,83 @@ root
  |    |    |    |    |    |    |-- witnessScriptLength: binary (nullable = false)
  |    |    |    |    |    |    |-- witnessScript: binary (nullable = false)
  |    |    |-- lockTime: integer (nullable = false)
+```
+## Format: org.zuinnote.spark.bitcoin.block (with readAuxPOW=true)
+```
+root
+ |-- blockSize: integer (nullable = false)
+ |-- magicNo: binary (nullable = false)
+ |-- version: integer (nullable = false)
+ |-- time: integer (nullable = false)
+ |-- bits: binary (nullable = false)
+ |-- nonce: integer (nullable = false)
+ |-- transactionCounter: long (nullable = false)
+ |-- hashPrevBlock: binary (nullable = false)
+ |-- hashMerkleRoot: binary (nullable = false)
+ |-- transactions: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- version: integer (nullable = false)
+ |    |    |-- marker: byte (nullable = false)
+ |    |    |-- flag: byte (nullable = false)
+ |    |    |-- inCounter: binary (nullable = false)
+ |    |    |-- outCounter: binary (nullable = false)
+ |    |    |-- listOfInputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- prevTransactionHash: binary (nullable = false)
+ |    |    |    |    |-- previousTxOutIndex: long (nullable = false)
+ |    |    |    |    |-- txInScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txInScript: binary (nullable = false)
+ |    |    |    |    |-- seqNo: long (nullable = false)
+ |    |    |-- listOfOutputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- value: long (nullable = false)
+ |    |    |    |    |-- txOutScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txOutScript: binary (nullable = false)
+ |    |    |-- listOfScriptWitnessItem: array (nullable = true)
+ |    |    |    |-- element: struct (containsNull = false)
+ |    |    |    |    |-- stackItemCounter: binary (nullable = false)
+ |    |    |    |    |-- scriptWitnessList: array (nullable = true)
+ |    |    |    |    |    |-- element: struct (containsNull = false)
+ |    |    |    |    |    |    |-- witnessScriptLength: binary (nullable = false)
+ |    |    |    |    |    |    |-- witnessScript: binary (nullable = false)
+ |    |    |-- lockTime: integer (nullable = false)
+ |-- auxPOW: struct (nullable = true)
+ |    |-- version: integer (nullable = false)
+ |    |-- coinbaseTransaction: struct (nullable = false)
+ |    |    |-- version: integer (nullable = false)
+ |    |    |-- inCounter: binary (nullable = false)
+ |    |    |-- outCounter: binary (nullable = false)
+ |    |    |-- listOfInputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- prevTransactionHash: binary (nullable = false)
+ |    |    |    |    |-- previousTxOutIndex: long (nullable = false)
+ |    |    |    |    |-- txInScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txInScript: binary (nullable = false)
+ |    |    |    |    |-- seqNo: long (nullable = false)
+ |    |    |-- listOfOutputs: array (nullable = false)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- value: long (nullable = false)
+ |    |    |    |    |-- txOutScriptLength: binary (nullable = false)
+ |    |    |    |    |-- txOutScript: binary (nullable = false)
+ |    |    |-- lockTime: integer (nullable = false)
+ |    |-- parentBlockHeaderHash: binary (nullable = false)
+ |    |-- coinbaseBranch: struct (nullable = false)
+ |    |    |-- numberOfLinks: binary (nullable = false)
+ |    |    |-- links: array (nullable = false)
+ |    |    |    |-- element: binary (containsNull = true)
+ |    |    |-- branchSideBitmask: binary (nullable = false)
+ |    |-- auxBlockChainBranch: struct (nullable = false)
+ |    |    |-- numberOfLinks: binary (nullable = false)
+ |    |    |-- links: array (nullable = false)
+ |    |    |    |-- element: binary (containsNull = true)
+ |    |    |-- branchSideBitmask: binary (nullable = false)
+ |    |-- parentBlockHeader: struct (nullable = false)
+ |    |    |-- version: integer (nullable = false)
+ |    |    |-- previousBlockHash: binary (nullable = false)
+ |    |    |-- merkleRoot: binary (nullable = false)
+ |    |    |-- time: integer (nullable = false)
+ |    |    |-- bits: binary (nullable = false)
+ |    |    |-- nonce: integer (nullable = false)
 ```
 ## Format: org.zuinnote.spark.bitcoin.transaction
 ```

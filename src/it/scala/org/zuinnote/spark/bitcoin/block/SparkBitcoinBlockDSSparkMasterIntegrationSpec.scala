@@ -366,7 +366,7 @@ override def beforeAll(): Unit = {
 	When("reading scriptwitness block using datasource")
 	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4FE").option("readAuxPOW","true").load(dfsCluster.getFileSystem().getUri().toString()+DFS_INPUT_DIR_NAME)
 	Then("schema should be correct and number of transactions")
-  df.printSchema
+
 	// check first if structure is correct
 	assert("blockSize"==df.columns(0))
 	assert("magicNo"==df.columns(1))

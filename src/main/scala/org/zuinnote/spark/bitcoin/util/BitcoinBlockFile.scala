@@ -20,10 +20,9 @@ package org.zuinnote.spark.bitcoin.util
 
 
 import org.apache.hadoop.io.BytesWritable
-import org.apache.hadoop.mapred.TextInputFormat
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SQLContext 
+import org.apache.spark.sql.SQLContext
 
 
 import org.apache.hadoop.io._
@@ -33,11 +32,11 @@ import org.apache.hadoop.conf._
 import org.apache.hadoop.fs.Path
 
 import org.zuinnote.hadoop.bitcoin.format.common._
-import org.zuinnote.hadoop.bitcoin.format.mapreduce._   
+import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 
 
 private[bitcoin] object BitcoinBlockFile {
- 
+
   def load(context: SQLContext, location: String, hadoopConf: Configuration): RDD[(BytesWritable,BitcoinBlock)] = {
 	context.sparkContext.newAPIHadoopFile(location, classOf[BitcoinBlockFileInputFormat], classOf[BytesWritable], classOf[BitcoinBlock], hadoopConf);
   }

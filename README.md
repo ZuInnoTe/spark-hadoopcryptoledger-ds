@@ -17,12 +17,16 @@ Find the latest release information [here](https://github.com/ZuInnoTe/spark-had
 
 # Options
 The following options are mapped to the following options of the HadoopCryptoLedger library ([Explanation](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Hadoop-File-Format#configure)):
-* "magic" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.filter.magic"
-* "maxblockSize" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.maxblocksize"
-* "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"
-* "isSplitable" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.issplitable"
-* "readAuxPOW" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.readauxpow"
-
+* Bitcoin and Altcoins
+  * "magic" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.filter.magic"
+  * "maxblockSize" is mapped to "hadoopcryptoledger.bitcoinblockinputformat.maxblocksize"
+  * "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"
+  * "isSplitable" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.issplitable"
+  * "readAuxPOW" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.readauxpow"
+* Ethereum and Altcoins
+  * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
+  * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"
+  * "enrich" in case of true it additional data is calculated for transactions: sendAddress and hash. Default: false
 
 # Dependency
 ## Scala 2.10

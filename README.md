@@ -26,7 +26,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
 * Ethereum and Altcoins
   * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"
-  * "enrich" in case of true it additional data is calculated for transactions: sendAddress and hash. Default: false
+  * "enrich" in case of true it additional data is calculated for transactions: sendAddress and hash. Default: false. Note: you must include the bouncycastle dependency to use this.
 
 # Dependency
 ## Scala 2.10

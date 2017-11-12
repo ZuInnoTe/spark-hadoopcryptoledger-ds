@@ -48,8 +48,9 @@ class DefaultSource
       val path= parameters.getOrElse("path", sys.error("'path' must be specified with files containing Bitcoin blockchain data."))
       val maxBlockSize = Integer.valueOf(parameters.getOrElse("maxBlockSize", String.valueOf(AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK)))
       val useDirectBuffer = parameters.getOrElse("useDirectBuffer", String.valueOf(AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER)).toBoolean
+      val enrich = parameters.getOrElse("enrich", "false").toBoolean
       // parse the parameters into hadoop objects
-      EthereumBlockRelation(path, maxBlockSize, useDirectBuffer)(sqlContext)
+      EthereumBlockRelation(path, maxBlockSize, useDirectBuffer, enrich)(sqlContext)
   }
 
 

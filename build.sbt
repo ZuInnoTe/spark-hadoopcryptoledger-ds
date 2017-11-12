@@ -33,8 +33,9 @@ jacoco.settings
 itJacoco.settings
 
 
-
 libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.1.0" % "compile"
+
+libraryDependencies += "org.bouncycastle" % "bcprov-ext-jdk15on" % "1.58" % "provided"
 
 libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 

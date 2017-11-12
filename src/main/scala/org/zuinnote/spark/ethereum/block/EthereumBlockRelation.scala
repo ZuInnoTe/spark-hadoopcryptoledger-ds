@@ -55,7 +55,7 @@ import org.zuinnote.spark.ethereum.util.EthereumBlockFile
 *
 */
 
-case class EthereumBlockRelation(location: String,maxBlockSize: Integer = AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK,useDirectBuffer: Boolean = AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER)
+case class EthereumBlockRelation(location: String,maxBlockSize: Integer = AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK,useDirectBuffer: Boolean = AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER, enrich: Boolean = false)
 (@transient val sqlContext: SQLContext)
   extends BaseRelation with TableScan
        with Serializable {
@@ -109,7 +109,59 @@ case class EthereumBlockRelation(location: String,maxBlockSize: Integer = Abstra
                 StructField("nonce",BinaryType,false)
         ))),false)))
 
-    return structEthereum
+        val structEthereumEnrich = StructType(Seq(
+          StructField("ethereumBlockHeader",StructType(Seq(
+                    StructField("parentHash",BinaryType,false),
+                    StructField("uncleHash",BinaryType,false),
+                    StructField("coinBase",BinaryType,false),
+                    StructField("stateRoot",BinaryType,false),
+                    StructField("txTrieRoot",BinaryType,false),
+                    StructField("receiptTrieRoot",BinaryType,false),
+                    StructField("logsBloom",BinaryType,false),
+                    StructField("difficulty",BinaryType,false),
+                    StructField("timestamp",LongType,false),
+                    StructField("number",LongType,false),
+                    StructField("gasLimit",LongType,false),
+                    StructField("gasUsed",LongType,false),
+                    StructField("mixHash",BinaryType,false),
+                    StructField("extraData",BinaryType,false),
+                    StructField("nonce",BinaryType,false)
+          )),false),
+          StructField("ethereumTransactions",ArrayType(StructType(Seq(
+                    StructField("nonce",BinaryType,false),
+                    StructField("value",LongType,false),
+                    StructField("receiveAddress",BinaryType,false),
+                    StructField("gasPrice",LongType,false),
+                    StructField("gasLimit",LongType,false),
+                    StructField("data",BinaryType,false),
+                    StructField("sig_v",BinaryType,false),
+                    StructField("sig_r",BinaryType,false),
+                    StructField("sig_s",BinaryType,false),
+                    StructField("sendAddress",BinaryType,false),
+                    StructField("hash",BinaryType,false)
+          ))),false),
+            StructField("uncleHeaders",ArrayType(StructType(Seq(
+                    StructField("parentHash",BinaryType,false),
+                    StructField("uncleHash",BinaryType,false),
+                    StructField("coinBase",BinaryType,false),
+                    StructField("stateRoot",BinaryType,false),
+                    StructField("txTrieRoot",BinaryType,false),
+                    StructField("receiptTrieRoot",BinaryType,false),
+                    StructField("logsBloom",BinaryType,false),
+                    StructField("difficulty",BinaryType,false),
+                    StructField("timestamp",LongType,false),
+                    StructField("number",LongType,false),
+                    StructField("gasLimit",LongType,false),
+                    StructField("gasUsed",LongType,false),
+                    StructField("mixHash",BinaryType,false),
+                    StructField("extraData",BinaryType,false),
+                    StructField("nonce",BinaryType,false)
+            ))),false)))
+    if (enrich) {
+      return structEthereumEnrich
+    } else {
+      return structEthereum
+    }
     }
 
 
@@ -153,7 +205,10 @@ case class EthereumBlockRelation(location: String,maxBlockSize: Integer = Abstra
     val ethereumTransactionArray=new Array[Any](hadoopKeyValueTuple._2.getEthereumTransactions().size())
     var i=0
     for (currentTransaction <- hadoopKeyValueTuple._2.getEthereumTransactions()) {
-        val ethereumTransactionStructArray = new Array[Any](9)
+        var ethereumTransactionStructArray = new Array[Any](9)
+        if (enrich) {
+            ethereumTransactionStructArray = new Array[Any](11)
+        }
         ethereumTransactionStructArray(0) = currentTransaction.getNonce
         ethereumTransactionStructArray(1) = currentTransaction.getValue
         ethereumTransactionStructArray(2) = currentTransaction.getReceiveAddress
@@ -163,6 +218,10 @@ case class EthereumBlockRelation(location: String,maxBlockSize: Integer = Abstra
         ethereumTransactionStructArray(6) = currentTransaction.getSig_v
         ethereumTransactionStructArray(7) = currentTransaction.getSig_r
         ethereumTransactionStructArray(8) = currentTransaction.getSig_s
+        if (enrich) {
+          ethereumTransactionStructArray(9) = EthereumUtil.getSendAddress(currentTransaction)
+          ethereumTransactionStructArray(10) = EthereumUtil.getTransactionHash(currentTransaction)
+        }
         ethereumTransactionArray(i)=Row.fromSeq(ethereumTransactionStructArray)
         i += 1
     }

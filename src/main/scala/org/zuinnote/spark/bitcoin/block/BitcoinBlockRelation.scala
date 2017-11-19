@@ -94,7 +94,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
                   StructField("witnessScript",BinaryType,false)
                 )), false)
                 ))), false)),
-            StructField("lockTime", IntegerType, false)))
+            StructField("lockTime", IntegerType, false),
+          StructField("currentTransactionHash",BinaryType,false)))
     ))))
 
     val structAuxPow = StructType(Seq(StructField("blockSize", IntegerType, false),
@@ -129,7 +130,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
                   StructField("witnessScript",BinaryType,false)
                 )), false)
                 ))), false)),
-            StructField("lockTime", IntegerType, false)))
+            StructField("lockTime", IntegerType, false),
+          StructField("currentTransactionHash",BinaryType,false)))
     )),
       StructField("auxPOW",StructType(Seq(
             StructField("version", IntegerType, false),
@@ -267,11 +269,12 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 
       // locktime
 			currentTransactionStructArray(8)=currentTransaction.getLockTime
+      currentTransactionStructArray(9) = BitcoinUtil.getTransactionHash(currentTransaction)
 			transactionArray(i)=Row.fromSeq(currentTransactionStructArray)
 
 			i+=1
 		}
-		rowArray(9) = transactionArray
+		rowArray(10) = transactionArray
     if (readAuxPOW) { // add auxPow information
       val auxPowStructArray = new Array[Any](6)
         // version
@@ -356,7 +359,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
         parentBlockHeaderStructArray(4)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getBits
         parentBlockHeaderStructArray(5)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getNonce
         auxPowStructArray(5)=Row.fromSeq(parentBlockHeaderStructArray)
-      rowArray(10) =Row.fromSeq(auxPowStructArray)
+      rowArray(11) =Row.fromSeq(auxPowStructArray)
     }
 	 	// add row representing one Bitcoin Block
           	Some(Row.fromSeq(rowArray))

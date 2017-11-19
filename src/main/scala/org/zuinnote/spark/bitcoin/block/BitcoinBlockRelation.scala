@@ -94,7 +94,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
                   StructField("witnessScript",BinaryType,false)
                 )), false)
                 ))), false)),
-            StructField("lockTime", IntegerType, false)))
+            StructField("lockTime", IntegerType, false),
+          StructField("currentTransactionHash",BinaryType,false)))
     ))))
 
     val structAuxPow = StructType(Seq(StructField("blockSize", IntegerType, false),
@@ -129,7 +130,8 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
                   StructField("witnessScript",BinaryType,false)
                 )), false)
                 ))), false)),
-            StructField("lockTime", IntegerType, false)))
+            StructField("lockTime", IntegerType, false),
+          StructField("currentTransactionHash",BinaryType,false)))
     )),
       StructField("auxPOW",StructType(Seq(
             StructField("version", IntegerType, false),
@@ -210,7 +212,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 		var transactionArray=new Array[Any](hadoopKeyValueTuple._2.getTransactions().size())
 		var i=0
 		for (currentTransaction <- hadoopKeyValueTuple._2.getTransactions()) {
-			val currentTransactionStructArray = new Array[Any](9)
+			val currentTransactionStructArray = new Array[Any](10)
 			currentTransactionStructArray(0)=currentTransaction.getVersion
       currentTransactionStructArray(1)=currentTransaction.getMarker
       currentTransactionStructArray(2)=currentTransaction.getFlag
@@ -269,9 +271,11 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
 			currentTransactionStructArray(8)=currentTransaction.getLockTime
 			transactionArray(i)=Row.fromSeq(currentTransactionStructArray)
 
-			i+=1
+      currentTransactionStructArray(9) = BitcoinUtil.getTransactionHash(currentTransaction)
+
+      i+=1
 		}
-		rowArray(9) = transactionArray
+		rowArray(10) = transactionArray
     if (readAuxPOW) { // add auxPow information
       val auxPowStructArray = new Array[Any](6)
         // version
@@ -356,7 +360,7 @@ case class BitcoinBlockRelation(location: String,maxBlockSize: Integer = Abstrac
         parentBlockHeaderStructArray(4)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getBits
         parentBlockHeaderStructArray(5)=hadoopKeyValueTuple._2.getAuxPOW.getParentBlockHeader.getNonce
         auxPowStructArray(5)=Row.fromSeq(parentBlockHeaderStructArray)
-      rowArray(10) =Row.fromSeq(auxPowStructArray)
+      rowArray(11) =Row.fromSeq(auxPowStructArray)
     }
 	 	// add row representing one Bitcoin Block
           	Some(Row.fromSeq(rowArray))

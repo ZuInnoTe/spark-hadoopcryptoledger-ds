@@ -3,7 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc05d48352034c5a8608ff71b629ce9f)](https://www.codacy.com/app/jornfranke/spark-hadoopcryptoledger-ds?utm_source=github.com&utm_medium=referral&utm_content=ZuInnoTe/spark-hadoopcryptoledger-ds&utm_campaign=badger)
 
 A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library. This Spark datasource assumes at least Spark > 1.5 or Spark >= 2.0.
-Currently this datasource supports the following formats of the HadoopCryptoLedger library:
+Currently this datasource supports the following formats of the HadoopCryptoLedger library (see schemas at the end of the page):
 * Bitcoin and Altcoin Blockchain
   * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
   * Bitcoin Transaction Datasource format: org.zuinnote.spark.bitcoin.transaction
@@ -25,6 +25,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"
   * "isSplitable" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.issplitable"
   * "readAuxPOW" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.readauxpow"
+  * "enrich" adds the transaction hash to each transaction in the Bitcoin block
 * Ethereum and Altcoins
   * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"
@@ -37,7 +38,7 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.10
 
-version: 1.0.8
+version: 1.1.0
 
 ## Scala 2.11
  
@@ -45,23 +46,35 @@ groupId: com.github.zuinnote
 
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
-version: 1.0.8
+version: 1.1.0
 
 
 # Develop
 The following sections describe some example code. 
 ## Scala
- This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+### Bitcoin and Altcoins
+ This example loads Bitcoin Blockchain data from the folder "/user/bitcoin/input" using the BitcoinBlock representation (format).
  ```
 val sqlContext = new SQLContext(sc)
 val df = sqlContext.read
     .format("org.zuinnote.spark.bitcoin.block")
     .option("magic", "F9BEB4D9")
-    .load("/home/user/bitcoin/input")
+    .load("/user/bitcoin/input")
 ```
  The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-DataSource
+### Ethereum and Altcoins
+ This example loads Ethereum Blockchain data from the folder "/user/ethereum/input" using the EthereumBlock representation (format).
+ ```
+val sqlContext = new SQLContext(sc)
+val df = sqlContext.read
+    .format("org.zuinnote.spark.ethereum.block")
+    .option("enrich", "false")
+    .load("/user/ethereum/input")
+```
+ The HadoopCryptoLedger library provides an example for scala using the data source library: ledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-datasource-to-read-Ethereum-data
 ## Java
- This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+### Bitcoin and Altcoins
+ This example loads Bitcoin Blockchain data from the folder "/user/bitcoin/input" using the BitcoinBlock representation (format).
  ```
 import org.apache.spark.sql.SQLContext
 
@@ -69,34 +82,72 @@ SQLContext sqlContext = new SQLContext(sc);
 DataFrame df = sqlContext.read()
     .format("org.zuinnote.spark.bitcoin.block")
     .option("magic", "F9BEB4D9")
-    .load("/home/user/bitcoin/input");
+    .load("/user/bitcoin/input");
+```
+### Ethereum and Altcoins
+ This example loads Ethereum Blockchain data from the folder "/user/ethereum/input" using the EthereumBlock representation (format).
+ ```
+import org.apache.spark.sql.SQLContext
+
+SQLContext sqlContext = new SQLContext(sc);
+DataFrame df = sqlContext.read()
+    .format("org.zuinnote.spark.ethereum.block")
+    .option("enrich", "false")
+    .load("/user/ethereum/input");
 ```
 ## R
- This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+### Bitcoin and Altcoins
+ This example loads Bitcoin Blockchain data from the folder "/user/bitcoin/input" using the BitcoinBlock representation (format).
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.0.8" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.0" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
-df <- read.df(sqlContext, "/home/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
+df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
+ ```
+### Ethereum and Altcoins
+ This example loads Ethereum Blockchain data from the folder "/user/ethereum/input" using the EthereumBlock representation (format).
+```
+library(SparkR)
+
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.0" "sparkr-shell"')
+sqlContext <- sparkRSQL.init(sc)
+
+df <- read.df(sqlContext, "/user/ethereum/input", source = "org.zuinnote.spark.ethereum.block", enrich = "false")
  ```
 ## Python
-This example loads Bitcoin Blockchain data from the folder "/home/user/bitcoin/input" using the BitcoinBlock representation (format).
+### Bitcoin and Altcoins
+This example loads Bitcoin Blockchain data from the folder "/user/bitcoin/input" using the BitcoinBlock representation (format).
 ```
 from pyspark.sql import SQLContext
 sqlContext = SQLContext(sc)
 
-df = sqlContext.read.format('org.zuinnote.spark.bitcoin.block').options(magic='F9BEB4D9').load('/home/user/bitcoin/input')
+df = sqlContext.read.format('org.zuinnote.spark.bitcoin.block').options(magic='F9BEB4D9').load('/user/bitcoin/input')
+```
+### Ethereum and Altcoins
+This example loads Ethereum Blockchain data from the folder "/user/ethereum/input" using the EthereumBlock representation (format).
+```
+from pyspark.sql import SQLContext
+sqlContext = SQLContext(sc)
+
+df = sqlContext.read.format('org.zuinnote.spark.ethereum.block').options(enrich='false').load('/user/ethereum/input')
 ```
 ## SQL
-The following statement creates a table that contains Bitcoin Blockchain data in the folder /home/user/bitcoin/input
+### Bitcoin and Altcoins
+The following statement creates a table that contains Bitcoin Blockchain data in the folder /user/bitcoin/input
 ```
 CREATE TABLE BitcoinBlockchain
 USING  org.zuinnote.spark.bitcoin.block
-OPTIONS (path "/home/user/bitcoin/input", magic "F9BEB4D9")
+OPTIONS (path "/user/bitcoin/input", magic "F9BEB4D9")
 ```
-
+### Ethereum and Altcoins
+The following statement creates a table that contains Ethereum Blockchain data in the folder /user/ethereum/input
+```
+CREATE TABLE EthereumBlockchain
+USING  org.zuinnote.spark.ethereum.block
+OPTIONS (path "/user/ethereum/input", enrich "false")
+```
 # Schemas
 ## Format: org.zuinnote.spark.bitcoin.block (without readAuxPOW=true)
 ```

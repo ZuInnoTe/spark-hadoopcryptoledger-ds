@@ -25,6 +25,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.usedirectbuffer"
   * "isSplitable" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.issplitable"
   * "readAuxPOW" is mapped to "hadoopcryptoledeger.bitcoinblockinputformat.readauxpow"
+  * "enrich" adds the transaction hash to each transaction in the Bitcoin block
 * Ethereum and Altcoins
   * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"

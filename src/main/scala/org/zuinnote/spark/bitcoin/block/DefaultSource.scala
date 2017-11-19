@@ -51,8 +51,9 @@ class DefaultSource
       val useDirectBuffer = parameters.getOrElse("useDirectBuffer", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER)).toBoolean
       val isSplitable = parameters.getOrElse("isSplitable", String.valueOf(AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)).toBoolean
       val readAuxPOW = parameters.getOrElse("readAuxPOW", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)).toBoolean
+      val enrich = parameters.getOrElse("enrich", "false").toBoolean
       // parse the parameters into hadoop objects
-      BitcoinBlockRelation(path, maxBlockSize, magic, useDirectBuffer, isSplitable,readAuxPOW)(sqlContext)
+      BitcoinBlockRelation(path, maxBlockSize, magic, useDirectBuffer, isSplitable,readAuxPOW,enrich)(sqlContext)
   }
 
 

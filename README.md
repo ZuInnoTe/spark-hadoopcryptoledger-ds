@@ -47,7 +47,10 @@ groupId: com.github.zuinnote
 artifactId: spark-hadoopcryptoledger-ds_2.11
 
 version: 1.1.1
+## Information Spark 2.2 and outdated Bouncy Castle library
+As [omervk and liorregev point out](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/9) is that Spark 2.2 uses jets3t 0.9.3, which depends on an outdated version of Bouncy Castle. Unfortunately, this outdated version does not support the cryptographic operations needed for enrichment of Ethereum data (SendAddress and TransactionHash). You have the following alternatives: (1) shade the latest BC library in your application (hadoopcryptoledger has it only as a provided dependency), (2) remove the outdated bouncy castle libraries from the Spark libraries (and do not use jets3t) or (3) wait for an updated jets3t version, which then need to be included into an updated Spark version.
 
+Other Spark versions do not currently show any issues.
 
 # Develop
 The following sections describe some example code. 

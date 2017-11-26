@@ -3,7 +3,7 @@ scala:
 - 2.10.5
 - 2.11.7
 script:
-- sbt ++$TRAVIS_SCALA_VERSION clean test it:test
+- sbt ++$TRAVIS_SCALA_VERSION clean test
 # workaround codacy bug
 - mkdir -p target/scala-2.10/coverage-report
 - mkdir -p target/scala-2.11/coverage-report

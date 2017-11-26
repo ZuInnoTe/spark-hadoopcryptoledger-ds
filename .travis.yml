@@ -3,7 +3,7 @@ scala:
 - 2.10.5
 - 2.11.7
 script:
-- sbt ++$TRAVIS_SCALA_VERSION clean  coverage test
+- sbt ++$TRAVIS_SCALA_VERSION clean test it:test
 - sbt ++$TRAVIS_SCALA_VERSION coverageReport
 - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage

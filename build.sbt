@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 .settings(
        organization := "com.github.zuinnote",
     name := "spark-hadoopcryptoledger-ds",
-    version := "1.1.1"
+    version := "1.1.2"
 )
  .configs( IntegrationTest )
   .settings( Defaults.itSettings : _*)
@@ -33,13 +33,13 @@ jacoco.settings
 itJacoco.settings
 
 
-libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.1.1" % "compile"
+libraryDependencies += "com.github.zuinnote" % "hadoopcryptoledger-fileformat" % "1.1.2" % "compile"
 
 libraryDependencies += "org.bouncycastle" % "bcprov-ext-jdk15on" % "1.58" % "provided"
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.1.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.5.0" % "provided"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.0" % "provided"
 

@@ -27,7 +27,6 @@ import org.apache.hadoop.hdfs.MiniDFSCluster
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FSDataInputStream
 import org.apache.hadoop.fs.Path
-
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStream
@@ -41,23 +40,20 @@ import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.List
 
-
 import org.apache.hadoop.io.compress.CodecPool
 import org.apache.hadoop.io.compress.CompressionCodec
 import org.apache.hadoop.io.compress.CompressionCodecFactory
 import org.apache.hadoop.io.compress.Decompressor
 import org.apache.hadoop.io.compress.SplittableCompressionCodec
 import org.apache.hadoop.io.compress.SplitCompressionInputStream
-
-
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
 
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConversions._
-import org.scalatest.{FlatSpec, BeforeAndAfterAll, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
+import org.zuinnote.spark.ethereum.model.{EnrichedEthereumBlock, EthereumBlock}
 
 class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
@@ -341,6 +337,10 @@ assert(expectedt5ReceiveAddress.deep==treceiveAddresses(transactNum).get(0).asIn
 
   // uncle headers
     // block does not contain uncleheaders
+
+  import df.sparkSession.implicits._
+
+  df.as[EthereumBlock].collect()
 }
 
 
@@ -576,6 +576,9 @@ assert(expectedt5ReceiveAddress.deep==treceiveAddresses(transactNum).get(0).asIn
   // uncle headers
     // block does not contain uncleheaders
 
+  import df.sparkSession.implicits._
+
+  df.as[EnrichedEthereumBlock].collect()
 
 }
 

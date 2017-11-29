@@ -27,7 +27,6 @@ import org.apache.hadoop.hdfs.MiniDFSCluster
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FSDataInputStream
 import org.apache.hadoop.fs.Path
-
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStream
@@ -40,22 +39,19 @@ import java.nio.file.SimpleFileVisitor
 import java.util.ArrayList
 import java.util.List
 
-
 import org.apache.hadoop.io.compress.CodecPool
 import org.apache.hadoop.io.compress.CompressionCodec
 import org.apache.hadoop.io.compress.CompressionCodecFactory
 import org.apache.hadoop.io.compress.Decompressor
 import org.apache.hadoop.io.compress.SplittableCompressionCodec
 import org.apache.hadoop.io.compress.SplitCompressionInputStream
-
-
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
 
-
 import scala.collection.mutable.ArrayBuffer
-import org.scalatest.{FlatSpec, BeforeAndAfterAll, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
+import org.zuinnote.spark.bitcoin.model.{EnrichedTransaction, Transaction}
 
 class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
@@ -242,6 +238,9 @@ override def beforeAll(): Unit = {
 	val noOfTransactions = df.count
 	assert(470==noOfTransactions)
 
+	import df.sparkSession.implicits._
+
+	df.as[Transaction].collect()
 }
 
 "The random scriptwitness2 block on DFS" should "be read in dataframe" in {
@@ -276,7 +275,25 @@ override def beforeAll(): Unit = {
 
 }
 
+"The random scriptwitness block on DFS" should "be read as dataset with enriched information" in {
+	Given("random scriptwitness block on DFSCluster")
+	// create input directory
+	dfsCluster.getFileSystem().delete(DFS_INPUT_DIR, true)
+	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+	// copy bitcoin blocks
+	val classLoader = getClass().getClassLoader()
+	// put testdata on DFS
+	val fileName: String = "scriptwitness.blk"
+	val fileNameFullLocal = classLoader.getResource("testdata/" + fileName).getFile()
+	val inputFile = new Path(fileNameFullLocal)
+	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+	When("reading Genesis block using datasource")
+	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").option("enrich", "true").load(dfsCluster.getFileSystem().getUri().toString() + DFS_INPUT_DIR_NAME)
+	Then("all fields should be readable trough Spark SQL")
 
+	import df.sparkSession.implicits._
 
+	df.as[EnrichedTransaction].collect()
+}
 
 }

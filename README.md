@@ -63,6 +63,14 @@ val df = sqlContext.read
     .format("org.zuinnote.spark.bitcoin.block")
     .option("magic", "F9BEB4D9")
     .load("/user/bitcoin/input")
+
+// Or if you'd like a Dataset version (Spark 2.0+)...
+
+import org.zuinnote.spark.bitcoin.model._
+import df.sparkSession.implicits._
+
+// Also available: EnrichedBitcoinBlock, BitcoinBlockWithAuxPOW, EnrichedBitcoinBlockWithAuxPOW
+val ds: Dataset[BitcoinBlock] = df.as[BitcoinBlock]
 ```
  The HadoopCryptoLedger library provides an example for scala using the data source library: https://github.com/ZuInnoTe/hadoopcryptoledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-DataSource
 ### Ethereum and Altcoins
@@ -73,6 +81,14 @@ val df = sqlContext.read
     .format("org.zuinnote.spark.ethereum.block")
     .option("enrich", "false")
     .load("/user/ethereum/input")
+
+// Or if you'd like a Dataset version (Spark 2.0+)...
+
+import org.zuinnote.spark.ethereum.model._
+import df.sparkSession.implicits._
+
+// Also available: EnrichedEthereumBlock
+val ds: Dataset[EthereumBlock] = df.as[EthereumBlock]
 ```
  The HadoopCryptoLedger library provides an example for scala using the data source library: ledger/wiki/Use-HadoopCrytoLedger-library-as-Spark-datasource-to-read-Ethereum-data
 ## Java

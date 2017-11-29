@@ -50,6 +50,11 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test,it"
 libraryDependencies += "javax.servlet" % "javax.servlet-api" % "3.0.1" % "it"
 
 
+
+libraryDependencies += "org.apache.spark" %% "spark-core" % "2.0.1" % "it"
+
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.0.1" % "it"
+
 libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.0" % "it" classifier "" classifier "tests"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.0" % "it" classifier "" classifier "tests"

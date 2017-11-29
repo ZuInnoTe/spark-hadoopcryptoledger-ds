@@ -1,17 +1,17 @@
 /**
-* Copyright 2016 ZuInnoTe (Jörn Franke) <zuinnote@gmail.com>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+  * Copyright 2016 ZuInnoTe (Jörn Franke) <zuinnote@gmail.com>
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
 **/
 package org.zuinnote.spark.bitcoin.transaction
 
@@ -24,37 +24,36 @@ import org.zuinnote.hadoop.bitcoin.format.common._
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 
 /**
-* Author: Jörn Franke <zuinnote@gmail.com>
-*
-*/
-
+  * Author: Jörn Franke <zuinnote@gmail.com>
+  *
+  */
 /**
-*
-* Defines a Spark data source for Bitcoin Blockchcain based on hadoopcryptoledgerlibrary. This is read-only for existing data. It returns BitcoinBlocks.
-*
-*/
+  *
+  * Defines a Spark data source for Bitcoin Blockchcain based on hadoopcryptoledgerlibrary. This is read-only for existing data. It returns BitcoinBlocks.
+  *
+  */
+class DefaultSource extends RelationProvider {
 
-class DefaultSource
-  extends RelationProvider
-   {
-
-	/**
+  /**
 	 * Used by Spark to fetch information about the data and initiate parsing
 	 *
 	*
 	*/
-  override def createRelation(
-      sqlContext: SQLContext,
-      parameters: Map[String, String]): BitcoinTransactionRelation = {
-      val path= parameters.getOrElse("path", sys.error("'path' must be specified with files containing Bitcoin blockchain data."))
-      val maxBlockSize = Integer.valueOf(parameters.getOrElse("maxBlockSize", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK)))
-      val magic = parameters.getOrElse("magic", AbstractBitcoinRecordReader.DEFAULT_MAGIC)
-      val useDirectBuffer = parameters.getOrElse("useDirectBuffer", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER)).toBoolean
-      val isSplitable = parameters.getOrElse("isSplitable", String.valueOf(AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)).toBoolean
-      val readAuxPOW = parameters.getOrElse("readAuxPOW", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)).toBoolean
-      // parse the parameters into hadoop objects
-      BitcoinTransactionRelation(path, maxBlockSize, magic, useDirectBuffer, isSplitable,readAuxPOW)(sqlContext)
+  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BitcoinTransactionRelation = {
+    val path =
+      parameters.getOrElse("path", sys.error("'path' must be specified with files containing Bitcoin blockchain data."))
+    val maxBlockSize = Integer.valueOf(
+      parameters.getOrElse("maxBlockSize", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK)))
+    val magic = parameters.getOrElse("magic", AbstractBitcoinRecordReader.DEFAULT_MAGIC)
+    val useDirectBuffer = parameters
+      .getOrElse("useDirectBuffer", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER))
+      .toBoolean
+    val isSplittable =
+      parameters.getOrElse("isSplittable", String.valueOf(AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE)).toBoolean
+    val readAuxPOW =
+      parameters.getOrElse("readAuxPOW", String.valueOf(AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)).toBoolean
+    // parse the parameters into hadoop objects
+    BitcoinTransactionRelation(path, maxBlockSize, magic, useDirectBuffer, isSplittable, readAuxPOW)(sqlContext)
   }
-
 
 }

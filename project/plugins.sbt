@@ -1,7 +1,7 @@
-
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.6")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
 addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.11")
 
-addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.6")
+addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.0.3")

@@ -11,11 +11,33 @@ final case class ScriptWitnessItem(stackItemCounter: Array[Byte], scriptWitnessL
 
 final case class Transaction(version: Int, marker: Byte, flag: Byte, inCounter: Array[Byte], outCounter: Array[Byte],
                              listOfInputs: Seq[Input], listOfOutputs: Seq[Output],
-                             listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Int)
+                             listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Int) {
+  
+  private[bitcoin] def enriched(currentTransactionHash: Array[Byte]): EnrichedTransaction = {
+    EnrichedTransaction(
+      version, marker, flag, inCounter, outCounter, listOfInputs, listOfOutputs, listOfScriptWitnessItem, lockTime,
+      currentTransactionHash
+    )
+  }
+}
 
 final case class BitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
                               nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
-                              hashMerkleRoot: Array[Byte], transactions: Seq[Transaction])
+                              hashMerkleRoot: Array[Byte], transactions: Seq[Transaction]) {
+
+  private[bitcoin] def withAuxPOW(auxPOW: AuxPOW): BitcoinBlockWithAuxPOW = {
+    BitcoinBlockWithAuxPOW(
+      blockSize, magicNo, version, time, bits, nonce, transactionCounter, hashPrevBlock, hashMerkleRoot, transactions,
+      auxPOW
+    )
+  }
+
+  private[bitcoin] def enriched(transactions: Seq[EnrichedTransaction]): EnrichedBitcoinBlock = {
+    EnrichedBitcoinBlock(
+      blockSize, magicNo, version, time, bits, nonce, transactionCounter, hashPrevBlock, hashMerkleRoot, transactions
+    )
+  }
+}
 
 final case class BitcoinBlockWithAuxPOW(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int,
                                         bits: Array[Byte], nonce: Int, transactionCounter: Long,
@@ -29,7 +51,15 @@ final case class EnrichedTransaction(version: Int, marker: Byte, flag: Byte, inC
 
 final case class EnrichedBitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
                                       nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
-                                      hashMerkleRoot: Array[Byte], transactions: Seq[EnrichedTransaction])
+                                      hashMerkleRoot: Array[Byte], transactions: Seq[EnrichedTransaction]) {
+
+  private[bitcoin] def withAuxPOW(auxPOW: AuxPOW): EnrichedBitcoinBlockWithAuxPOW = {
+    EnrichedBitcoinBlockWithAuxPOW(
+      blockSize, magicNo, version, time, bits, nonce, transactionCounter, hashPrevBlock, hashMerkleRoot, transactions,
+      auxPOW
+    )
+  }
+}
 
 final case class EnrichedBitcoinBlockWithAuxPOW(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int,
                                                 bits: Array[Byte], nonce: Int, transactionCounter: Long,

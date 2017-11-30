@@ -28,20 +28,14 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-
-
-
-
 import org.apache.hadoop.hdfs.MiniDFSCluster
-import org.apache.hadoop.io.compress.{CodecPool,Decompressor
-}
+import org.apache.hadoop.io.compress.{CodecPool, Decompressor}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
-
 import org.apache.spark.{SparkConf, SparkContext}
-import scala.collection.mutable.ArrayBuffer
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
-import org.zuinnote.spark.bitcoin.model.{EnrichedTransaction, Transaction}
+
+import scala.collection.mutable
 
 class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
@@ -60,7 +54,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
   private val NOOFDATANODES: Int = 4
   private var dfsCluster: MiniDFSCluster = _
   private var conf: Configuration = _
-  private var openDecompressors = ArrayBuffer[Decompressor]()
+  private var openDecompressors = mutable.ArrayBuffer[Decompressor]()
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -198,94 +192,65 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
     assert(txOutScriptExpected.deep == txOutScript(0).get(0).asInstanceOf[Array[Byte]].deep)
   }
 
+  "The random scriptwitness block on DFS" should "be read in dataframe" in {
+    Given("Genesis Block on DFSCluster")
+    // create input directory
+    dfsCluster.getFileSystem().delete(DFS_INPUT_DIR, true)
+    dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+    // copy bitcoin blocks
+    val classLoader = getClass.getClassLoader
+    // put testdata on DFS
+    val fileName: String = "scriptwitness.blk"
+    val fileNameFullLocal = classLoader.getResource("testdata/" + fileName).getFile
+    val inputFile = new Path(fileNameFullLocal)
+    dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+    When("reading Genesis block using datasource")
+    val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    Then("all fields should be readable trough Spark SQL")
+    // check first if structure is correct
+    assert("currentTransactionHash" == df.columns(0))
+    assert("version" == df.columns(1))
+    assert("marker" == df.columns(2))
+    assert("flag" == df.columns(3))
+    assert("inCounter" == df.columns(4))
+    assert("outCounter" == df.columns(5))
+    assert("listOfInputs" == df.columns(6))
+    assert("listOfOutputs" == df.columns(7))
+    assert("listOfScriptWitnessItem" == df.columns(8))
+    assert("lockTime" == df.columns(9))
+    // validate transaction data
+    val noOfTransactions = df.count
+    assert(470 == noOfTransactions)
+  }
 
-"The random scriptwitness block on DFS" should "be read in dataframe" in {
-	Given("Genesis Block on DFSCluster")
-	// create input directory
-     dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
-	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
-	// copy bitcoin blocks
-	val classLoader = getClass.getClassLoader
-    	// put testdata on DFS
-    	val fileName: String="scriptwitness.blk"
-    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile
-    	val inputFile=new Path(fileNameFullLocal)
-    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
-	When("reading Genesis block using datasource")
-	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString+DFS_INPUT_DIR_NAME)
-	Then("all fields should be readable trough Spark SQL")
-	// check first if structure is correct
-	assert("currentTransactionHash"==df.columns(0))
-	assert("version"==df.columns(1))
-  assert("marker"==df.columns(2))
-  assert("flag"==df.columns(3))
-	assert("inCounter"==df.columns(4))
-	assert("outCounter"==df.columns(5))
-	assert("listOfInputs"==df.columns(6))
-	assert("listOfOutputs"==df.columns(7))
-  assert("listOfScriptWitnessItem"==df.columns(8))
-	assert("lockTime"==df.columns(9))
-	// validate transaction data
-	val noOfTransactions = df.count
-	assert(470==noOfTransactions)
-
-import df.sparkSession.implicits._
-
-	df.as[Transaction].collect()}
-
-"The random scriptwitness2 block on DFS" should "be read in dataframe" in {
-	Given("Genesis Block on DFSCluster")
-	// create input directory
-     dfsCluster.getFileSystem().delete(DFS_INPUT_DIR,true)
-	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
-	// copy bitcoin blocks
-	val classLoader = getClass.getClassLoader
-    	// put testdata on DFS
-    	val fileName: String="scriptwitness2.blk"
-    	val fileNameFullLocal=classLoader.getResource("testdata/"+fileName).getFile
-    	val inputFile=new Path(fileNameFullLocal)
-    	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
-	When("reading Genesis block using datasource")
-	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString+DFS_INPUT_DIR_NAME)
-  Then("all fields should be readable trough Spark SQL")
-	// check first if structure is correct
-	assert("currentTransactionHash"==df.columns(0))
-	assert("version"==df.columns(1))
-  assert("marker"==df.columns(2))
-  assert("flag"==df.columns(3))
-	assert("inCounter"==df.columns(4))
-	assert("outCounter"==df.columns(5))
-	assert("listOfInputs"==df.columns(6))
-	assert("listOfOutputs"==df.columns(7))
-  assert("listOfScriptWitnessItem"==df.columns(8))
-	assert("lockTime"==df.columns(9))
-	// validate transaction data
-	val noOfTransactions = df.count
-	assert(4699==noOfTransactions)
-
-}
-
-"The random scriptwitness block on DFS" should "be read as dataset with enriched information" in {
-	Given("random scriptwitness block on DFSCluster")
-	// create input directory
-	dfsCluster.getFileSystem().delete(DFS_INPUT_DIR, true)
-	dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
-	// copy bitcoin blocks
-	val classLoader = getClass().getClassLoader()
-	// put testdata on DFS
-	val fileName: String = "scriptwitness.blk"
-	val fileNameFullLocal = classLoader.getResource("testdata/" + fileName).getFile()
-	val inputFile = new Path(fileNameFullLocal)
-	dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
-	When("reading Genesis block using datasource")
-	val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").option("enrich", "true").load(dfsCluster.getFileSystem().getUri().toString() + DFS_INPUT_DIR_NAME)
-	Then("all fields should be readable trough Spark SQL")
-
-	import df.sparkSession.implicits._
-
-	df.as[EnrichedTransaction].collect()
-}
-
-
-
+  "The random scriptwitness2 block on DFS" should "be read in dataframe" in {
+    Given("Genesis Block on DFSCluster")
+    // create input directory
+    dfsCluster.getFileSystem().delete(DFS_INPUT_DIR, true)
+    dfsCluster.getFileSystem().mkdirs(DFS_INPUT_DIR)
+    // copy bitcoin blocks
+    val classLoader = getClass.getClassLoader
+    // put testdata on DFS
+    val fileName: String = "scriptwitness2.blk"
+    val fileNameFullLocal = classLoader.getResource("testdata/" + fileName).getFile
+    val inputFile = new Path(fileNameFullLocal)
+    dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
+    When("reading Genesis block using datasource")
+    val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    Then("all fields should be readable trough Spark SQL")
+    // check first if structure is correct
+    assert("currentTransactionHash" == df.columns(0))
+    assert("version" == df.columns(1))
+    assert("marker" == df.columns(2))
+    assert("flag" == df.columns(3))
+    assert("inCounter" == df.columns(4))
+    assert("outCounter" == df.columns(5))
+    assert("listOfInputs" == df.columns(6))
+    assert("listOfOutputs" == df.columns(7))
+    assert("listOfScriptWitnessItem" == df.columns(8))
+    assert("lockTime" == df.columns(9))
+    // validate transaction data
+    val noOfTransactions = df.count
+    assert(4699 == noOfTransactions)
+  }
 }

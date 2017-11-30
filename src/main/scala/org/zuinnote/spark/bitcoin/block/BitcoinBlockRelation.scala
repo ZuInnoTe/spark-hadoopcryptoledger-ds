@@ -22,8 +22,9 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SQLContext, _}
-import org.zuinnote.hadoop.bitcoin.format.common._
+import org.zuinnote.hadoop.bitcoin.format.common.{BitcoinTransaction, BitcoinUtil, BitcoinAuxPOW => HadoopBitcoinAuxPOW, BitcoinBlock => HadoopBitcoinBlock}
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
+import org.zuinnote.spark.bitcoin.model._
 import org.zuinnote.spark.bitcoin.util.BitcoinBlockFile
 
 import scala.collection.JavaConversions._
@@ -432,6 +433,115 @@ case class BitcoinBlockRelation(location: String,
     }
   }
 
+  private def toTransaction(currentTransaction: BitcoinTransaction): Transaction = {
+    val inputs: Seq[Input] = currentTransaction.getListOfInputs
+      .map { currentTransactionInput =>
+        Input(
+          currentTransactionInput.getPrevTransactionHash,
+          currentTransactionInput.getPreviousTxOutIndex,
+          currentTransactionInput.getTxInScriptLength,
+          currentTransactionInput.getTxInScript,
+          currentTransactionInput.getSeqNo
+        )
+      }
+
+    val outputs: Seq[Output] = currentTransaction.getListOfOutputs
+      .map { currentTransactionOutput =>
+        Output(
+          currentTransactionOutput.getValue,
+          currentTransactionOutput.getTxOutScriptLength,
+          currentTransactionOutput.getTxOutScript
+        )
+      }
+
+    val scriptWitnesses: Seq[ScriptWitnessItem] = currentTransaction.getBitcoinScriptWitness
+      .map { currentTransactionScriptWitnessItem =>
+        ScriptWitnessItem(
+          currentTransactionScriptWitnessItem.getStackItemCounter,
+          currentTransactionScriptWitnessItem.getScriptWitnessList
+            .map { currentScriptWitness =>
+              ScriptWitness(
+                currentScriptWitness.getWitnessScriptLength,
+                currentScriptWitness.getWitnessScript
+              )
+            }
+        )
+      }
+
+    Transaction(
+      currentTransaction.getVersion,
+      currentTransaction.getMarker,
+      currentTransaction.getFlag,
+      currentTransaction.getInCounter,
+      currentTransaction.getOutCounter,
+      inputs,
+      outputs,
+      scriptWitnesses,
+      currentTransaction.getLockTime
+    )
+  }
+
+  private def toAuxPOW(auxPOW: HadoopBitcoinAuxPOW): AuxPOW = {
+    val inputs: Seq[Input] = auxPOW.getCoinbaseTransaction.getListOfInputs
+      .map { currentCoinBaseTransactionInput =>
+        Input(
+          currentCoinBaseTransactionInput.getPrevTransactionHash,
+          currentCoinBaseTransactionInput.getPreviousTxOutIndex,
+          currentCoinBaseTransactionInput.getTxInScriptLength,
+          currentCoinBaseTransactionInput.getTxInScript,
+          currentCoinBaseTransactionInput.getSeqNo
+        )
+      }
+
+    val outputs: Seq[Output] = auxPOW.getCoinbaseTransaction.getListOfOutputs
+      .map { currentCoinBaseTransactionOutput =>
+        Output(
+          currentCoinBaseTransactionOutput.getValue,
+          currentCoinBaseTransactionOutput.getTxOutScriptLength,
+          currentCoinBaseTransactionOutput.getTxOutScript
+        )
+      }
+
+    val coinbaseTransaction = CoinbaseTransaction(
+      auxPOW.getCoinbaseTransaction.getVersion,
+      auxPOW.getCoinbaseTransaction.getInCounter,
+      auxPOW.getCoinbaseTransaction.getOutCounter,
+      inputs,
+      outputs,
+      auxPOW.getCoinbaseTransaction.getLockTime
+    )
+
+    val coinbaseBranch = CoinbaseBranch(
+      auxPOW.getCoinbaseBranch.getNumberOfLinks,
+      auxPOW.getCoinbaseBranch.getLinks.toSeq,
+      auxPOW.getCoinbaseBranch.getBranchSideBitmask
+    )
+
+    val auxBlockChainBranch = AuxBlockChainBranch(
+      auxPOW.getAuxBlockChainBranch.getNumberOfLinks,
+      auxPOW.getAuxBlockChainBranch.getLinks.toSeq,
+      auxPOW.getCoinbaseBranch.getBranchSideBitmask
+    )
+
+    val parentBlockHeader = ParentBlockHeader(
+      auxPOW.getParentBlockHeader.getVersion,
+      auxPOW.getParentBlockHeader.getPreviousBlockHash,
+      auxPOW.getParentBlockHeader.getMerkleRoot,
+      auxPOW.getParentBlockHeader.getTime,
+      auxPOW.getParentBlockHeader.getBits,
+      auxPOW.getParentBlockHeader.getNonce
+    )
+
+    AuxPOW(
+      auxPOW.getVersion,
+      coinbaseTransaction,
+      auxPOW.getParentBlockHeaderHash,
+      coinbaseBranch,
+      auxBlockChainBranch,
+      parentBlockHeader
+    )
+  }
+
   /**
     * Used by Spark to fetch Bitcoin blocks according to the schema specified above from files.
     *
@@ -439,68 +549,11 @@ case class BitcoinBlockRelation(location: String,
     * returns BitcoinBlocks as rows
     **/
   override def buildScan: RDD[Row] = {
-    val bitcoinBlockRDD: RDD[(BytesWritable, BitcoinBlock)] = readRawBlockRDD()
+    val bitcoinBlockRDD: RDD[(BytesWritable, HadoopBitcoinBlock)] = readRawBlockRDD()
 
     bitcoinBlockRDD
       .map { case (_, currentBlock) =>
-        val transactions = currentBlock.getTransactions
-          .map { currentTransaction =>
-            val inputs = currentTransaction.getListOfInputs
-              .map { currentTransactionInput =>
-                Seq(
-                  currentTransactionInput.getPrevTransactionHash,
-                  currentTransactionInput.getPreviousTxOutIndex,
-                  currentTransactionInput.getTxInScriptLength,
-                  currentTransactionInput.getTxInScript,
-                  currentTransactionInput.getSeqNo
-                )
-              }
-
-            val outputs = currentTransaction.getListOfOutputs
-              .map { currentTransactionOutput =>
-                Seq(
-                  currentTransactionOutput.getValue,
-                  currentTransactionOutput.getTxOutScriptLength,
-                  currentTransactionOutput.getTxOutScript
-                )
-              }
-
-            val scriptWitnesses = currentTransaction.getBitcoinScriptWitness
-              .map { currentTransactionScriptWitnessItem =>
-                Seq(
-                  currentTransactionScriptWitnessItem.getStackItemCounter,
-                  currentTransactionScriptWitnessItem.getScriptWitnessList
-                    .map { currentScriptWitness =>
-                      Seq(
-                        currentScriptWitness.getWitnessScriptLength,
-                        currentScriptWitness.getWitnessScript
-                      )
-                    }
-                    .map(Row.fromSeq)
-                    .toArray
-                )
-              }
-
-            val transaction = Seq(
-              currentTransaction.getVersion,
-              currentTransaction.getMarker,
-              currentTransaction.getFlag,
-              currentTransaction.getInCounter,
-              currentTransaction.getOutCounter,
-              inputs.map(Row.fromSeq).toArray,
-              outputs.map(Row.fromSeq).toArray,
-              scriptWitnesses.map(Row.fromSeq).toArray,
-              currentTransaction.getLockTime
-            )
-
-            if (enrich) {
-              transaction :+ BitcoinUtil.getTransactionHash(currentTransaction)
-            } else {
-              transaction
-            }
-          }
-
-        val block = Seq(
+        val block = BitcoinBlock(
           currentBlock.getBlockSize,
           currentBlock.getMagicNo,
           currentBlock.getVersion,
@@ -510,85 +563,29 @@ case class BitcoinBlockRelation(location: String,
           currentBlock.getTransactionCounter,
           currentBlock.getHashPrevBlock,
           currentBlock.getHashMerkleRoot,
-          transactions.map(Row.fromSeq).toArray
+          Seq.empty
         )
+
+        val blockWithTransactions: Product { def withAuxPOW(auxPOW: AuxPOW): Product } =
+          if (enrich) {
+            val transactions: Seq[EnrichedTransaction] = currentBlock.getTransactions
+              .map(transaction => toTransaction(transaction).enriched(BitcoinUtil.getTransactionHash(transaction)))
+
+            block.enriched(transactions)
+          } else {
+            block.copy(transactions = currentBlock.getTransactions.map(toTransaction))
+          }
 
         if (readAuxPOW) {
-          block :+ Row.fromSeq(getAuxPOW(currentBlock.getAuxPOW))
+          blockWithTransactions.withAuxPOW(toAuxPOW(currentBlock.getAuxPOW))
         } else {
-          block
+          blockWithTransactions
         }
       }
-      .map(Row.fromSeq)
+      .map(Row.fromTuple)
   }
 
-  private def getAuxPOW(auxPOW: BitcoinAuxPOW): Seq[Any] = {
-    val inputs = auxPOW.getCoinbaseTransaction.getListOfInputs
-      .map { currentCoinBaseTransactionInput =>
-        Seq(
-          currentCoinBaseTransactionInput.getPrevTransactionHash,
-          currentCoinBaseTransactionInput.getPreviousTxOutIndex,
-          currentCoinBaseTransactionInput.getTxInScriptLength,
-          currentCoinBaseTransactionInput.getTxInScript,
-          currentCoinBaseTransactionInput.getSeqNo
-        )
-      }
-      .map(Row.fromSeq)
-      .toArray
-
-    val outputs = auxPOW.getCoinbaseTransaction.getListOfOutputs
-      .map { currentCoinBaseTransactionOutput =>
-        Seq(
-          currentCoinBaseTransactionOutput.getValue,
-          currentCoinBaseTransactionOutput.getTxOutScriptLength,
-          currentCoinBaseTransactionOutput.getTxOutScript
-        )
-      }
-      .map(Row.fromSeq)
-      .toArray
-
-    val coinbaseTransaction = Seq(
-      auxPOW.getCoinbaseTransaction.getVersion,
-      auxPOW.getCoinbaseTransaction.getInCounter,
-      auxPOW.getCoinbaseTransaction.getOutCounter,
-      inputs,
-      outputs,
-      auxPOW.getCoinbaseTransaction.getLockTime
-    )
-
-    val coinbaseBranch = Seq(
-      auxPOW.getCoinbaseBranch.getNumberOfLinks,
-      auxPOW.getCoinbaseBranch.getLinks.toArray,
-      auxPOW.getCoinbaseBranch.getBranchSideBitmask
-    )
-
-    val auxBlockChainBranch = Seq(
-      auxPOW.getAuxBlockChainBranch.getNumberOfLinks,
-      auxPOW.getAuxBlockChainBranch.getLinks.toArray,
-      auxPOW.getCoinbaseBranch.getBranchSideBitmask
-    )
-
-    val parentBlockHeader = Seq(
-      auxPOW.getParentBlockHeader.getVersion,
-      auxPOW.getParentBlockHeader.getPreviousBlockHash,
-      auxPOW.getParentBlockHeader.getMerkleRoot,
-      auxPOW.getParentBlockHeader.getTime,
-      auxPOW.getParentBlockHeader.getBits,
-      auxPOW.getParentBlockHeader.getNonce
-    )
-
-    val auxPOWData = Seq(
-      auxPOW.getVersion,
-      Row.fromSeq(coinbaseTransaction),
-      auxPOW.getParentBlockHeaderHash,
-      Row.fromSeq(coinbaseBranch),
-      Row.fromSeq(auxBlockChainBranch),
-      Row.fromSeq(parentBlockHeader)
-    )
-    auxPOWData
-  }
-
-  private def readRawBlockRDD(): RDD[(BytesWritable, BitcoinBlock)] = {
+  private def readRawBlockRDD(): RDD[(BytesWritable, HadoopBitcoinBlock)] = {
     // create hadoopConf
     val hadoopConf = new Configuration()
     hadoopConf.set(AbstractBitcoinRecordReader.CONF_MAXBLOCKSIZE, String.valueOf(maxBlockSize))

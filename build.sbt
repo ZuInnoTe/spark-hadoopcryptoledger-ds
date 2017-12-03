@@ -1,7 +1,7 @@
 import Keys._
 
-lazy val Spark200 = config(s"spark200") extend IntegrationTest describedAs s"Integration tests against Spark 2.0.0"
-lazy val Spark210 = config(s"spark210") extend IntegrationTest describedAs s"Integration tests against Spark 2.1.0"
+lazy val Spark200 = config("spark200") extend IntegrationTest describedAs s"Integration tests against Spark 2.0.0"
+lazy val Spark210 = config("spark210") extend IntegrationTest describedAs s"Integration tests against Spark 2.1.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -34,7 +34,16 @@ lazy val root = (project in file("."))
 
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
 
-    scalacOptions += "-target:jvm-1.7",
+    scalacOptions ++= Seq(
+      "-target:jvm-1.7",
+      "-feature", "-deprecation", "-unchecked", "-explaintypes",
+      "-encoding", "UTF-8", // yes, this is 2 args
+      "-language:reflectiveCalls", "-language:implicitConversions", "-language:postfixOps", "-language:existentials",
+      "-language:higherKinds",
+      "-Xcheckinit", "-Xexperimental", "-Xfatal-warnings", "-Xfuture", "-Xlint",
+      "-Ywarn-dead-code", "-Ywarn-inaccessible", "-Ywarn-numeric-widen", "-Yno-adapted-args", "-Ywarn-unused-import",
+      "-Ywarn-unused"
+    ),
 
     javaOptions += "-Xmx3G",
 

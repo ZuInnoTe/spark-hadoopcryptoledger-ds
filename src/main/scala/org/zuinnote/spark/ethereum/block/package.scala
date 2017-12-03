@@ -16,8 +16,6 @@
 package org.zuinnote.spark.ethereum
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
-
-import org.zuinnote.hadoop.ethereum.format.common._
 import org.zuinnote.hadoop.ethereum.format.mapreduce._
 
 /**

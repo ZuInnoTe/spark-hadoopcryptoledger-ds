@@ -15,7 +15,6 @@
   **/
 package org.zuinnote.spark.ethereum.block
 
-import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.conf._
 import org.apache.hadoop.io.BytesWritable
 import org.apache.spark.rdd.RDD
@@ -24,7 +23,6 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Encoders, Row, SQLContext}
 import org.zuinnote.hadoop.ethereum.format.common
 import org.zuinnote.hadoop.ethereum.format.mapreduce._
-import org.zuinnote.spark.ethereum.util.EthereumBlockFile
 import org.zuinnote.spark.ethereum.model._
 
 /**
@@ -35,13 +33,11 @@ import org.zuinnote.spark.ethereum.model._
   * Defines the schema of a EthereumBlock for Spark SQL
   *
   */
-case class EthereumBlockRelation(location: String,
-                                 maxBlockSize: Integer = AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK,
-                                 useDirectBuffer: Boolean = AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER,
-                                 enrich: Boolean = false)(@transient val sqlContext: SQLContext)
+final case class EthereumBlockRelation(location: String,
+                                       maxBlockSize: Integer = AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK,
+                                       useDirectBuffer: Boolean = AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER,
+                                       enrich: Boolean = false)(@transient val sqlContext: SQLContext)
   extends BaseRelation with TableScan with Serializable {
-
-  private lazy val LOG = LogFactory.getLog(EthereumBlockRelation.getClass)
 
   override def schema: StructType = {
     if (enrich) {
@@ -77,6 +73,12 @@ case class EthereumBlockRelation(location: String,
     hadoopConf.set(AbstractEthereumRecordReader.CONF_MAXBLOCKSIZE, String.valueOf(maxBlockSize))
     hadoopConf.set(AbstractEthereumRecordReader.CONF_USEDIRECTBUFFER, String.valueOf(useDirectBuffer))
     // read Ethereum Block
-    EthereumBlockFile.load(sqlContext, location, hadoopConf)
+    sqlContext.sparkContext.newAPIHadoopFile(
+      location,
+      classOf[EthereumBlockFileInputFormat],
+      classOf[BytesWritable],
+      classOf[common.EthereumBlock],
+      hadoopConf
+    )
   }
 }

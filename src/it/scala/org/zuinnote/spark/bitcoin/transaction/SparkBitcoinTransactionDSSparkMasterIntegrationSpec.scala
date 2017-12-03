@@ -23,96 +23,61 @@
 package org.zuinnote.spark.bitcoin.transaction
 
 import java.io.{File, IOException}
-import java.nio.file.{FileVisitResult, Files, SimpleFileVisitor}
-import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.Files
 
+import org.apache.commons.io.FileUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hdfs.MiniDFSCluster
-import org.apache.hadoop.io.compress.{CodecPool, Decompressor}
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
-
-import scala.collection.mutable
 
 class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
-  private var sc: SparkContext = _
-  private var sqlContext: SQLContext = _
   private val master: String = "local[2]"
-  private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"
+//  private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"
   private val tmpPrefix: String = "hcl-integrationtest"
-  private var tmpPath: java.nio.file.Path = _
-  private val CLUSTERNAME: String = "hcl-minicluster"
+  private lazy val tmpPath: java.nio.file.Path = Files.createTempDirectory(tmpPrefix)
+//  private val CLUSTERNAME: String = "hcl-minicluster"
   private val DFS_INPUT_DIR_NAME: String = "/input"
-  private val DFS_OUTPUT_DIR_NAME: String = "/output"
-  private val DEFAULT_OUTPUT_FILENAME: String = "part-00000"
+//  private val DFS_OUTPUT_DIR_NAME: String = "/output"
+//  private val DEFAULT_OUTPUT_FILENAME: String = "part-00000"
   private val DFS_INPUT_DIR: Path = new Path(DFS_INPUT_DIR_NAME)
-  private val DFS_OUTPUT_DIR: Path = new Path(DFS_OUTPUT_DIR_NAME)
+//  private val DFS_OUTPUT_DIR: Path = new Path(DFS_OUTPUT_DIR_NAME)
   private val NOOFDATANODES: Int = 4
-  private var dfsCluster: MiniDFSCluster = _
-  private var conf: Configuration = _
-  private var openDecompressors = mutable.ArrayBuffer[Decompressor]()
+
+  private lazy val dfsCluster: MiniDFSCluster = {
+    // create DFS mini cluster
+    val conf = new Configuration()
+    val baseDir = new File(tmpPath.toString).getAbsoluteFile
+    conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath)
+    val builder = new MiniDFSCluster.Builder(conf)
+    val cluster = builder.numDataNodes(NOOFDATANODES).build()
+    conf.set("fs.defaultFS", cluster.getFileSystem().getUri.toString)
+    cluster
+  }
+  
+  private lazy val spark: SparkSession = {
+    SparkSession.builder().master(master).appName(this.getClass.getSimpleName).getOrCreate()
+  }
 
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    // Create temporary directory for HDFS base and shutdownhook
-    // create temp directory
-    tmpPath = Files.createTempDirectory(tmpPrefix)
     // create shutdown hook to remove temp files (=HDFS MiniCluster) after shutdown, may need to rethink to avoid many threads are created
     Runtime.getRuntime.addShutdownHook(new Thread("remove temporary directory") {
       override def run(): Unit = {
         try {
-          Files.walkFileTree(tmpPath, new SimpleFileVisitor[java.nio.file.Path]() {
-
-            override def visitFile(file: java.nio.file.Path, attrs: BasicFileAttributes): FileVisitResult = {
-              Files.delete(file)
-              FileVisitResult.CONTINUE
-            }
-
-            override def postVisitDirectory(dir: java.nio.file.Path, e: IOException): FileVisitResult = {
-              if (e != null) {
-                throw e
-              }
-
-              Files.delete(dir)
-              FileVisitResult.CONTINUE
-            }
-          })
+          FileUtils.deleteDirectory(tmpPath.toFile)
         } catch {
           case e: IOException => throw new RuntimeException("Error temporary files in following path could not be deleted " + tmpPath, e)
         }
       }
     })
-    // create DFS mini cluster
-    conf = new Configuration()
-    val baseDir = new File(tmpPath.toString).getAbsoluteFile
-    conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath)
-    val builder = new MiniDFSCluster.Builder(conf)
-    dfsCluster = builder.numDataNodes(NOOFDATANODES).build()
-    conf.set("fs.defaultFS", dfsCluster.getFileSystem().getUri.toString)
-    // create local Spark cluster
-    val sparkConf = new SparkConf()
-      .setMaster("local[2]")
-      .setAppName(this.getClass.getSimpleName)
-    sc = new SparkContext(sparkConf)
-    sqlContext = new SQLContext(sc)
   }
 
   override def afterAll(): Unit = {
-    // close Spark Context
-    if (sc != null) {
-      sc.stop()
-    }
-    // close decompressor
-    for (currentDecompressor <- this.openDecompressors) {
-      if (currentDecompressor != null) {
-        CodecPool.returnDecompressor(currentDecompressor)
-      }
-    }
     // close dfs cluster
     dfsCluster.shutdown()
     super.afterAll()
@@ -131,7 +96,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
     val inputFile = new Path(fileNameFullLocal)
     dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
     When("reading Genesis block using datasource")
-    val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    val df = spark.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
     Then("all fields should be readable trough Spark SQL")
     // check first if structure is correct
     assert("currentTransactionHash" == df.columns(0))
@@ -205,7 +170,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
     val inputFile = new Path(fileNameFullLocal)
     dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
     When("reading Genesis block using datasource")
-    val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    val df = spark.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
     Then("all fields should be readable trough Spark SQL")
     // check first if structure is correct
     assert("currentTransactionHash" == df.columns(0))
@@ -236,7 +201,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with 
     val inputFile = new Path(fileNameFullLocal)
     dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
     When("reading Genesis block using datasource")
-    val df = sqlContext.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    val df = spark.read.format("org.zuinnote.spark.bitcoin.transaction").option("magic", "F9BEB4D9").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
     Then("all fields should be readable trough Spark SQL")
     // check first if structure is correct
     assert("currentTransactionHash" == df.columns(0))

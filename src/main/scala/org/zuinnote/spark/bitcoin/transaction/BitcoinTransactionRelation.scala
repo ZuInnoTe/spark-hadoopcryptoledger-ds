@@ -15,7 +15,6 @@
   **/
 package org.zuinnote.spark.bitcoin.transaction
 
-import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.conf._
 import org.apache.hadoop.io.BytesWritable
 import org.apache.spark.rdd.RDD
@@ -24,7 +23,6 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Encoders, Row, SQLContext}
 import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransaction
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
-import org.zuinnote.spark.bitcoin.util.BitcoinTransactionFile
 import org.zuinnote.spark.bitcoin.model._
 
 /**
@@ -35,18 +33,16 @@ import org.zuinnote.spark.bitcoin.model._
   * Defines the schema of a BitcoinTransaction for Spark SQL
   *
   */
-case class BitcoinTransactionRelation(location: String,
-                                      maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
-                                      magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
-                                      useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
-                                      isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
-                                      readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
-                                     (@transient val sqlContext: SQLContext)
+final case class BitcoinTransactionRelation(location: String,
+                                            maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
+                                            magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
+                                            useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
+                                            isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
+                                            readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
+                                           (@transient val sqlContext: SQLContext)
   extends BaseRelation
     with TableScan
     with Serializable {
-
-  private lazy val LOG = LogFactory.getLog(BitcoinTransactionRelation.getClass)
 
   override def schema: StructType = Encoders.product[SingleTransaction].schema
 
@@ -70,6 +66,12 @@ case class BitcoinTransactionRelation(location: String,
     hadoopConf.set(AbstractBitcoinRecordReader.CONF_USEDIRECTBUFFER, String.valueOf(useDirectBuffer))
     hadoopConf.set(AbstractBitcoinFileInputFormat.CONF_ISSPLITABLE, String.valueOf(isSplittable))
     // read BitcoinBlock
-    BitcoinTransactionFile.load(sqlContext, location, hadoopConf)
+    sqlContext.sparkContext.newAPIHadoopFile(
+      location,
+      classOf[BitcoinTransactionFileInputFormat],
+      classOf[BytesWritable],
+      classOf[BitcoinTransaction],
+      hadoopConf
+    )
   }
 }

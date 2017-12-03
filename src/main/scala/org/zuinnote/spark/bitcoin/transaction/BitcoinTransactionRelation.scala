@@ -25,8 +25,7 @@ import org.apache.spark.sql.types._
 import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransaction
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.util.BitcoinTransactionFile
-
-import scala.collection.JavaConversions._
+import org.zuinnote.spark.bitcoin.model._
 
 /**
   * Author: Jörn Franke <zuinnote@gmail.com>
@@ -36,13 +35,12 @@ import scala.collection.JavaConversions._
   * Defines the schema of a BitcoinTransaction for Spark SQL
   *
   */
-case class BitcoinTransactionRelation(
-                                       location: String,
-                                       maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
-                                       magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
-                                       useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
-                                       isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
-                                       readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
+case class BitcoinTransactionRelation(location: String,
+                                      maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
+                                      magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
+                                      useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
+                                      isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
+                                      readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
                                      (@transient val sqlContext: SQLContext)
   extends BaseRelation
     with TableScan
@@ -104,60 +102,9 @@ case class BitcoinTransactionRelation(
     * returns BitcoinTransactions as rows
     **/
   override def buildScan: RDD[Row] = {
-    val bitcoinTransactionRDD: RDD[(BytesWritable, BitcoinTransaction)] = readRawTransactionRDD()
-
-    bitcoinTransactionRDD
+    readRawTransactionRDD()
       .map { case (transactionHash, currentTransaction) =>
-        // map the BitcoinTransaction data structure to a Spark SQL schema
-        val inputs = currentTransaction.getListOfInputs
-          .map { currentTransactionInput =>
-            Seq(
-              currentTransactionInput.getPrevTransactionHash,
-              currentTransactionInput.getPreviousTxOutIndex,
-              currentTransactionInput.getTxInScriptLength,
-              currentTransactionInput.getTxInScript,
-              currentTransactionInput.getSeqNo
-            )
-          }
-
-        val outputs = currentTransaction.getListOfOutputs
-          .map { currentTransactionOutput =>
-            Seq(
-              currentTransactionOutput.getValue,
-              currentTransactionOutput.getTxOutScriptLength,
-              currentTransactionOutput.getTxOutScript
-            )
-          }
-
-        val scriptWitness = currentTransaction.getBitcoinScriptWitness
-          .map { currentTransactionScriptWitnessItem =>
-            Seq(
-              currentTransactionScriptWitnessItem.getStackItemCounter,
-              currentTransactionScriptWitnessItem.getScriptWitnessList
-                .map(currentScriptWitness =>
-                  Seq(
-                    currentScriptWitness.getWitnessScriptLength,
-                    currentScriptWitness.getWitnessScript
-                  )
-                )
-                .map(Row.fromSeq)
-                .toArray
-            )
-          }
-
-        Seq(
-          // map transactions
-          transactionHash.copyBytes, // current transaction hash
-          currentTransaction.getVersion,
-          currentTransaction.getMarker,
-          currentTransaction.getFlag,
-          currentTransaction.getInCounter,
-          currentTransaction.getOutCounter,
-          inputs.map(Row.fromSeq).toArray,
-          outputs.map(Row.fromSeq).toArray,
-          scriptWitness.map(Row.fromSeq).toArray,
-          currentTransaction.getLockTime
-        )
+        transactionHash.copyBytes +: currentTransaction.asScala.productIterator.toSeq
       }
       .map(Row.fromSeq)
   }

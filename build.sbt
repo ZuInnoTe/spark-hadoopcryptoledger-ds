@@ -17,8 +17,8 @@ lazy val root = (project in file("."))
       "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.1.2" % "compile",
 
       "org.bouncycastle"          % "bcprov-ext-jdk15on"             % "1.58"  % "provided",
-      "org.apache.spark"         %% "spark-core"                     % "1.5.0" % "provided",
-      "org.apache.spark"         %% "spark-sql"                      % "1.5.0" % "provided",
+      "org.apache.spark"         %% "spark-core"                     % "2.0.0" % "provided",
+      "org.apache.spark"         %% "spark-sql"                      % "2.0.0" % "provided",
       "org.apache.hadoop"         % "hadoop-client"                  % "2.7.0" % "provided",
       "org.apache.logging.log4j"  % "log4j-api"                      % "2.4.1" % "provided",
 

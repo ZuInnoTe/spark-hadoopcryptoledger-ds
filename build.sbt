@@ -1,5 +1,7 @@
-import sbt._
 import Keys._
+
+lazy val Spark200 = config(s"spark200") extend IntegrationTest describedAs s"Integration tests against Spark 2.0.0"
+lazy val Spark210 = config(s"spark210") extend IntegrationTest describedAs s"Integration tests against Spark 2.1.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -11,7 +13,7 @@ lazy val root = (project in file("."))
 
     scalaVersion := "2.11.8",
 
-    crossScalaVersions := Seq("2.10.5", "2.11.8"),
+    crossScalaVersions := Seq("2.10.6", "2.11.8"),
 
     libraryDependencies ++= Seq(
       "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.1.2" % "compile",
@@ -25,8 +27,6 @@ lazy val root = (project in file("."))
       "org.scalatest"            %% "scalatest"                      % "3.0.1" % "test,it",
 
       "javax.servlet"             % "javax.servlet-api"              % "3.0.1" % "it",
-      "org.apache.spark"         %% "spark-core"                     % "2.0.1" % "it",
-      "org.apache.spark"         %% "spark-sql"                      % "2.0.1" % "it",
       "org.apache.hadoop"         % "hadoop-common"                  % "2.7.0" % "it" classifier "" classifier "tests",
       "org.apache.hadoop"         % "hadoop-hdfs"                    % "2.7.0" % "it" classifier "" classifier "tests",
       "org.apache.hadoop"         % "hadoop-minicluster"             % "2.7.0" % "it"
@@ -44,3 +44,18 @@ lazy val root = (project in file("."))
   )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
+  .configs(Spark200, Spark210)
+  .settings(
+    inConfig(Spark200)(
+      libraryDependencies ++= Seq(
+        "org.apache.spark" %% "spark-core" % "2.0.0" % "it",
+        "org.apache.spark" %% "spark-sql"  % "2.0.0" % "it"
+      )
+    ),
+    inConfig(Spark210)(
+      libraryDependencies ++= Seq(
+        "org.apache.spark" %% "spark-core" % "2.1.0" % "it",
+        "org.apache.spark" %% "spark-sql"  % "2.1.0" % "it"
+      )
+    )
+  )

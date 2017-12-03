@@ -19,9 +19,9 @@ import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.conf._
 import org.apache.hadoop.io.BytesWritable
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{SQLContext, _}
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Encoders, Row, SQLContext}
 import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransaction
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.util.BitcoinTransactionFile
@@ -48,52 +48,7 @@ case class BitcoinTransactionRelation(location: String,
 
   private lazy val LOG = LogFactory.getLog(BitcoinTransactionRelation.getClass)
 
-  override def schema: StructType = StructType(
-    Seq(
-      StructField("currentTransactionHash", BinaryType, nullable = false),
-      StructField("version", IntegerType, nullable = false),
-      StructField("marker", ByteType, nullable = false),
-      StructField("flag", ByteType, nullable = false),
-      StructField("inCounter", BinaryType, nullable = false),
-      StructField("outCounter", BinaryType, nullable = false),
-      StructField(
-        "listOfInputs",
-        ArrayType(StructType(Seq(
-          StructField("prevTransactionHash", BinaryType, nullable = false),
-          StructField("previousTxOutIndex", LongType, nullable = false),
-          StructField("txInScriptLength", BinaryType, nullable = false),
-          StructField("txInScript", BinaryType, nullable = false),
-          StructField("seqNo", LongType, nullable = false)
-        ))),
-        nullable = false
-      ),
-      StructField(
-        "listOfOutputs",
-        ArrayType(
-          StructType(Seq(StructField("value", LongType, nullable = false),
-            StructField("txOutScriptLength", BinaryType, nullable = false),
-            StructField("txOutScript", BinaryType, nullable = false)))),
-        nullable = false
-      ),
-      StructField(
-        "listOfScriptWitnessItem",
-        ArrayType(
-          StructType(Seq(
-            StructField("stackItemCounter", BinaryType, nullable = false),
-            StructField(
-              "scriptWitnessList",
-              ArrayType(StructType(Seq(
-                StructField("witnessScriptLength", BinaryType, nullable = false),
-                StructField("witnessScript", BinaryType, nullable = false)
-              )),
-                containsNull = false)
-            )
-          )),
-          containsNull = false
-        )
-      ),
-      StructField("lockTime", IntegerType, nullable = false)
-    ))
+  override def schema: StructType = Encoders.product[SingleTransaction].schema
 
   /**
     * Used by Spark to fetch Bitcoin transactions according to the schema specified above from files.
@@ -103,10 +58,8 @@ case class BitcoinTransactionRelation(location: String,
     **/
   override def buildScan: RDD[Row] = {
     readRawTransactionRDD()
-      .map { case (transactionHash, currentTransaction) =>
-        transactionHash.copyBytes +: currentTransaction.asScala.productIterator.toSeq
-      }
-      .map(Row.fromSeq)
+      .map { case (transactionHash, currentTransaction) => currentTransaction.asScalaSingle(transactionHash.copyBytes()) }
+      .map(Row.fromTuple)
   }
 
   private def readRawTransactionRDD(): RDD[(BytesWritable, BitcoinTransaction)] = {

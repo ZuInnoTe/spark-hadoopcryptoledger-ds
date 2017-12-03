@@ -20,8 +20,8 @@ import org.apache.hadoop.conf._
 import org.apache.hadoop.io.BytesWritable
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.{SQLContext, _}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Encoders, Row, SQLContext}
 import org.zuinnote.hadoop.ethereum.format.common
 import org.zuinnote.hadoop.ethereum.format.mapreduce._
 import org.zuinnote.spark.ethereum.util.EthereumBlockFile
@@ -44,134 +44,10 @@ case class EthereumBlockRelation(location: String,
   private lazy val LOG = LogFactory.getLog(EthereumBlockRelation.getClass)
 
   override def schema: StructType = {
-    val structEthereum = StructType(
-      Seq(
-        StructField(
-          "ethereumBlockHeader",
-          StructType(Seq(
-            StructField("parentHash", BinaryType, nullable = false),
-            StructField("uncleHash", BinaryType, nullable = false),
-            StructField("coinBase", BinaryType, nullable = false),
-            StructField("stateRoot", BinaryType, nullable = false),
-            StructField("txTrieRoot", BinaryType, nullable = false),
-            StructField("receiptTrieRoot", BinaryType, nullable = false),
-            StructField("logsBloom", BinaryType, nullable = false),
-            StructField("difficulty", BinaryType, nullable = false),
-            StructField("timestamp", LongType, nullable = false),
-            StructField("number", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("gasUsed", LongType, nullable = false),
-            StructField("mixHash", BinaryType, nullable = false),
-            StructField("extraData", BinaryType, nullable = false),
-            StructField("nonce", BinaryType, nullable = false)
-          )),
-          nullable = false
-        ),
-        StructField(
-          "ethereumTransactions",
-          ArrayType(StructType(Seq(
-            StructField("nonce", BinaryType, nullable = false),
-            StructField("value", LongType, nullable = false),
-            StructField("receiveAddress", BinaryType, nullable = false),
-            StructField("gasPrice", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("data", BinaryType, nullable = false),
-            StructField("sig_v", BinaryType, nullable = false),
-            StructField("sig_r", BinaryType, nullable = false),
-            StructField("sig_s", BinaryType, nullable = false)
-          ))),
-          nullable = false
-        ),
-        StructField(
-          "uncleHeaders",
-          ArrayType(StructType(Seq(
-            StructField("parentHash", BinaryType, nullable = false),
-            StructField("uncleHash", BinaryType, nullable = false),
-            StructField("coinBase", BinaryType, nullable = false),
-            StructField("stateRoot", BinaryType, nullable = false),
-            StructField("txTrieRoot", BinaryType, nullable = false),
-            StructField("receiptTrieRoot", BinaryType, nullable = false),
-            StructField("logsBloom", BinaryType, nullable = false),
-            StructField("difficulty", BinaryType, nullable = false),
-            StructField("timestamp", LongType, nullable = false),
-            StructField("number", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("gasUsed", LongType, nullable = false),
-            StructField("mixHash", BinaryType, nullable = false),
-            StructField("extraData", BinaryType, nullable = false),
-            StructField("nonce", BinaryType, nullable = false)
-          ))),
-          nullable = false
-        )
-      ))
-
-    val structEthereumEnrich = StructType(
-      Seq(
-        StructField(
-          "ethereumBlockHeader",
-          StructType(Seq(
-            StructField("parentHash", BinaryType, nullable = false),
-            StructField("uncleHash", BinaryType, nullable = false),
-            StructField("coinBase", BinaryType, nullable = false),
-            StructField("stateRoot", BinaryType, nullable = false),
-            StructField("txTrieRoot", BinaryType, nullable = false),
-            StructField("receiptTrieRoot", BinaryType, nullable = false),
-            StructField("logsBloom", BinaryType, nullable = false),
-            StructField("difficulty", BinaryType, nullable = false),
-            StructField("timestamp", LongType, nullable = false),
-            StructField("number", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("gasUsed", LongType, nullable = false),
-            StructField("mixHash", BinaryType, nullable = false),
-            StructField("extraData", BinaryType, nullable = false),
-            StructField("nonce", BinaryType, nullable = false)
-          )),
-          nullable = false
-        ),
-        StructField(
-          "ethereumTransactions",
-          ArrayType(StructType(Seq(
-            StructField("nonce", BinaryType, nullable = false),
-            StructField("value", LongType, nullable = false),
-            StructField("receiveAddress", BinaryType, nullable = false),
-            StructField("gasPrice", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("data", BinaryType, nullable = false),
-            StructField("sig_v", BinaryType, nullable = false),
-            StructField("sig_r", BinaryType, nullable = false),
-            StructField("sig_s", BinaryType, nullable = false),
-            StructField("sendAddress", BinaryType, nullable = false),
-            StructField("hash", BinaryType, nullable = false)
-          ))),
-          nullable = false
-        ),
-        StructField(
-          "uncleHeaders",
-          ArrayType(StructType(Seq(
-            StructField("parentHash", BinaryType, nullable = false),
-            StructField("uncleHash", BinaryType, nullable = false),
-            StructField("coinBase", BinaryType, nullable = false),
-            StructField("stateRoot", BinaryType, nullable = false),
-            StructField("txTrieRoot", BinaryType, nullable = false),
-            StructField("receiptTrieRoot", BinaryType, nullable = false),
-            StructField("logsBloom", BinaryType, nullable = false),
-            StructField("difficulty", BinaryType, nullable = false),
-            StructField("timestamp", LongType, nullable = false),
-            StructField("number", LongType, nullable = false),
-            StructField("gasLimit", LongType, nullable = false),
-            StructField("gasUsed", LongType, nullable = false),
-            StructField("mixHash", BinaryType, nullable = false),
-            StructField("extraData", BinaryType, nullable = false),
-            StructField("nonce", BinaryType, nullable = false)
-          ))),
-          nullable = false
-        )
-      ))
-
     if (enrich) {
-      structEthereumEnrich
+      Encoders.product[EnrichedEthereumBlock].schema
     } else {
-      structEthereum
+      Encoders.product[EthereumBlock].schema
     }
   }
 

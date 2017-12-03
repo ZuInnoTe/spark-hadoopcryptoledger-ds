@@ -52,6 +52,21 @@ package object model {
         BitcoinUtil.getTransactionHash(transaction)
       )
     }
+
+    def asScalaSingle(transactionHash: Array[Byte]): SingleTransaction = {
+      SingleTransaction(
+        transactionHash,
+        transaction.getVersion,
+        transaction.getMarker,
+        transaction.getFlag,
+        transaction.getInCounter,
+        transaction.getOutCounter,
+        transaction.getListOfInputs.asScala.map(toInput),
+        transaction.getListOfOutputs.asScala.map(toOutput),
+        transaction.getBitcoinScriptWitness.asScala.map(toScriptWitnessItem),
+        transaction.getLockTime
+      )
+    }
   }
 
   implicit class FromJavaAuxPOW(val auxPOW: BitcoinAuxPOW) extends AnyVal {

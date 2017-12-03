@@ -21,6 +21,11 @@ final case class Transaction(version: Int, marker: Byte, flag: Byte, inCounter: 
   }
 }
 
+final case class SingleTransaction(currentTransactionHash: Array[Byte], version: Int, marker: Byte, flag: Byte,
+                                   inCounter: Array[Byte], outCounter: Array[Byte], listOfInputs: Seq[Input],
+                                   listOfOutputs: Seq[Output], listOfScriptWitnessItem: Seq[ScriptWitnessItem],
+                                   lockTime: Int)
+
 final case class BitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
                               nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
                               hashMerkleRoot: Array[Byte], transactions: Seq[Transaction])

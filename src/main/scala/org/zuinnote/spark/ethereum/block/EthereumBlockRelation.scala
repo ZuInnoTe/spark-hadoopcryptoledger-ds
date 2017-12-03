@@ -22,11 +22,10 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SQLContext, _}
-import org.zuinnote.hadoop.ethereum.format.common._
+import org.zuinnote.hadoop.ethereum.format.common
 import org.zuinnote.hadoop.ethereum.format.mapreduce._
 import org.zuinnote.spark.ethereum.util.EthereumBlockFile
-
-import scala.collection.JavaConversions._
+import org.zuinnote.spark.ethereum.model._
 
 /**
   * Author: Jörn Franke <zuinnote@gmail.com>
@@ -183,85 +182,20 @@ case class EthereumBlockRelation(location: String,
     * returns EthereumBlocks as rows
     **/
   override def buildScan: RDD[Row] = {
-    val ethereumBlockRDD: RDD[(BytesWritable, EthereumBlock)] = readRawBlockRDD()
+    val ethereumBlockRDD: RDD[(BytesWritable, common.EthereumBlock)] = readRawBlockRDD()
 
-    // map to schema
-    ethereumBlockRDD.map { case (_, block) =>
-      // map the EthereumBlock data structure to a Spark SQL schema
-      val header = Seq(
-        block.getEthereumBlockHeader.getParentHash,
-        block.getEthereumBlockHeader.getUncleHash,
-        block.getEthereumBlockHeader.getCoinBase,
-        block.getEthereumBlockHeader.getStateRoot,
-        block.getEthereumBlockHeader.getTxTrieRoot,
-        block.getEthereumBlockHeader.getReceiptTrieRoot,
-        block.getEthereumBlockHeader.getLogsBloom,
-        block.getEthereumBlockHeader.getDifficulty,
-        block.getEthereumBlockHeader.getTimestamp,
-        block.getEthereumBlockHeader.getNumber,
-        block.getEthereumBlockHeader.getGasLimit,
-        block.getEthereumBlockHeader.getGasUsed,
-        block.getEthereumBlockHeader.getMixHash,
-        block.getEthereumBlockHeader.getExtraData,
-        block.getEthereumBlockHeader.getNonce
-      )
-
-      val transactions = block.getEthereumTransactions
-        .map { currentTransaction =>
-          val transaction = Seq(
-            currentTransaction.getNonce,
-            currentTransaction.getValue,
-            currentTransaction.getReceiveAddress,
-            currentTransaction.getGasPrice,
-            currentTransaction.getGasLimit,
-            currentTransaction.getData,
-            currentTransaction.getSig_v,
-            currentTransaction.getSig_r,
-            currentTransaction.getSig_s
-          )
-
-          if (enrich) {
-            transaction ++ Seq(
-              EthereumUtil.getSendAddress(currentTransaction),
-              EthereumUtil.getTransactionHash(currentTransaction)
-            )
-          } else {
-            transaction
-          }
-        }
-
-      val uncleHeaders = block.getUncleHeaders
-        .map { uncleHeader =>
-          Seq(
-            uncleHeader.getParentHash,
-            uncleHeader.getUncleHash,
-            uncleHeader.getCoinBase,
-            uncleHeader.getStateRoot,
-            uncleHeader.getTxTrieRoot,
-            uncleHeader.getReceiptTrieRoot,
-            uncleHeader.getLogsBloom,
-            uncleHeader.getDifficulty,
-            uncleHeader.getTimestamp,
-            uncleHeader.getNumber,
-            uncleHeader.getGasLimit,
-            uncleHeader.getGasUsed,
-            uncleHeader.getMixHash,
-            uncleHeader.getExtraData,
-            uncleHeader.getNonce
-          )
-        }
-
-      // add row representing one Ethereum Block
-      Seq(
-        Row.fromSeq(header),
-        transactions.map(Row.fromSeq).toArray,
-        uncleHeaders.map(Row.fromSeq).toArray
-      )
+    if (enrich) {
+      ethereumBlockRDD
+        .map { case (_, block) => block.asScalaEnriched }
+        .map(Row.fromTuple)
+    } else {
+      ethereumBlockRDD
+        .map { case (_, block) => block.asScala }
+        .map(Row.fromTuple)
     }
-    .map(Row.fromSeq)
   }
 
-  private def readRawBlockRDD(): RDD[(BytesWritable, EthereumBlock)] = {
+  private def readRawBlockRDD(): RDD[(BytesWritable, common.EthereumBlock)] = {
     // create hadoopConf
     val hadoopConf = new Configuration()
     hadoopConf.set(AbstractEthereumRecordReader.CONF_MAXBLOCKSIZE, String.valueOf(maxBlockSize))

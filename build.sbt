@@ -44,6 +44,10 @@ lazy val root = (project in file("."))
       "-Ywarn-dead-code", "-Ywarn-inaccessible", "-Ywarn-numeric-widen", "-Yno-adapted-args", "-Ywarn-unused-import",
       "-Ywarn-unused"
     ),
+    scalacOptions --= // scalac 2.10 rejects some HK types under -Xfuture it seems..
+      (CrossVersion partialVersion scalaVersion.value collect {
+      case (2, 10) => List("-Ywarn-unused", "-Ywarn-unused-import")
+    }).toList.flatten,
 
     javaOptions += "-Xmx3G",
 

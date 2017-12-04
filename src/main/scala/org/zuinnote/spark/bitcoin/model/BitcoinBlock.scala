@@ -21,9 +21,15 @@ final case class Transaction(version: Int, marker: Byte, flag: Byte, inCounter: 
   }
 }
 
+final case class SingleTransaction(currentTransactionHash: Array[Byte], version: Int, marker: Byte, flag: Byte,
+                                   inCounter: Array[Byte], outCounter: Array[Byte], listOfInputs: Seq[Input],
+                                   listOfOutputs: Seq[Output], listOfScriptWitnessItem: Seq[ScriptWitnessItem],
+                                   lockTime: Int)
+
 final case class BitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
                               nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
-                              hashMerkleRoot: Array[Byte], transactions: Seq[Transaction]) {
+                              hashMerkleRoot: Array[Byte], transactions: Seq[Transaction])
+  extends CanAddAuxPOW {
 
   private[bitcoin] def withAuxPOW(auxPOW: AuxPOW): BitcoinBlockWithAuxPOW = {
     BitcoinBlockWithAuxPOW(
@@ -51,7 +57,8 @@ final case class EnrichedTransaction(version: Int, marker: Byte, flag: Byte, inC
 
 final case class EnrichedBitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
                                       nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
-                                      hashMerkleRoot: Array[Byte], transactions: Seq[EnrichedTransaction]) {
+                                      hashMerkleRoot: Array[Byte], transactions: Seq[EnrichedTransaction])
+  extends CanAddAuxPOW {
 
   private[bitcoin] def withAuxPOW(auxPOW: AuxPOW): EnrichedBitcoinBlockWithAuxPOW = {
     EnrichedBitcoinBlockWithAuxPOW(
@@ -80,4 +87,7 @@ final case class AuxBlockChainBranch(numberOfLinks: Array[Byte], links: Seq[Arra
 final case class AuxPOW(version: Int, coinbaseTransaction: CoinbaseTransaction, parentBlockHeaderHash: Array[Byte],
                         coinbaseBranch: CoinbaseBranch, auxBlockChainBranch: AuxBlockChainBranch,
                         parentBlockHeader: ParentBlockHeader)
-  
+
+sealed trait CanAddAuxPOW {
+  private[bitcoin] def withAuxPOW(auxPOW: AuxPOW): Product
+}

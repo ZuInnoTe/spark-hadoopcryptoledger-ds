@@ -15,18 +15,15 @@
   **/
 package org.zuinnote.spark.bitcoin.transaction
 
-import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.conf._
 import org.apache.hadoop.io.BytesWritable
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{SQLContext, _}
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Encoders, Row, SQLContext}
 import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransaction
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
-import org.zuinnote.spark.bitcoin.util.BitcoinTransactionFile
-
-import scala.collection.JavaConversions._
+import org.zuinnote.spark.bitcoin.model._
 
 /**
   * Author: Jörn Franke <zuinnote@gmail.com>
@@ -36,66 +33,18 @@ import scala.collection.JavaConversions._
   * Defines the schema of a BitcoinTransaction for Spark SQL
   *
   */
-case class BitcoinTransactionRelation(
-                                       location: String,
-                                       maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
-                                       magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
-                                       useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
-                                       isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
-                                       readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
-                                     (@transient val sqlContext: SQLContext)
+final case class BitcoinTransactionRelation(location: String,
+                                            maxBlockSize: Integer = AbstractBitcoinRecordReader.DEFAULT_MAXSIZE_BITCOINBLOCK,
+                                            magic: String = AbstractBitcoinRecordReader.DEFAULT_MAGIC,
+                                            useDirectBuffer: Boolean = AbstractBitcoinRecordReader.DEFAULT_USEDIRECTBUFFER,
+                                            isSplittable: Boolean = AbstractBitcoinFileInputFormat.DEFAULT_ISSPLITABLE,
+                                            readAuxPOW: Boolean = AbstractBitcoinRecordReader.DEFAULT_READAUXPOW)
+                                           (@transient val sqlContext: SQLContext)
   extends BaseRelation
     with TableScan
     with Serializable {
 
-  private lazy val LOG = LogFactory.getLog(BitcoinTransactionRelation.getClass)
-
-  override def schema: StructType = StructType(
-    Seq(
-      StructField("currentTransactionHash", BinaryType, nullable = false),
-      StructField("version", IntegerType, nullable = false),
-      StructField("marker", ByteType, nullable = false),
-      StructField("flag", ByteType, nullable = false),
-      StructField("inCounter", BinaryType, nullable = false),
-      StructField("outCounter", BinaryType, nullable = false),
-      StructField(
-        "listOfInputs",
-        ArrayType(StructType(Seq(
-          StructField("prevTransactionHash", BinaryType, nullable = false),
-          StructField("previousTxOutIndex", LongType, nullable = false),
-          StructField("txInScriptLength", BinaryType, nullable = false),
-          StructField("txInScript", BinaryType, nullable = false),
-          StructField("seqNo", LongType, nullable = false)
-        ))),
-        nullable = false
-      ),
-      StructField(
-        "listOfOutputs",
-        ArrayType(
-          StructType(Seq(StructField("value", LongType, nullable = false),
-            StructField("txOutScriptLength", BinaryType, nullable = false),
-            StructField("txOutScript", BinaryType, nullable = false)))),
-        nullable = false
-      ),
-      StructField(
-        "listOfScriptWitnessItem",
-        ArrayType(
-          StructType(Seq(
-            StructField("stackItemCounter", BinaryType, nullable = false),
-            StructField(
-              "scriptWitnessList",
-              ArrayType(StructType(Seq(
-                StructField("witnessScriptLength", BinaryType, nullable = false),
-                StructField("witnessScript", BinaryType, nullable = false)
-              )),
-                containsNull = false)
-            )
-          )),
-          containsNull = false
-        )
-      ),
-      StructField("lockTime", IntegerType, nullable = false)
-    ))
+  override def schema: StructType = Encoders.product[SingleTransaction].schema
 
   /**
     * Used by Spark to fetch Bitcoin transactions according to the schema specified above from files.
@@ -104,62 +53,9 @@ case class BitcoinTransactionRelation(
     * returns BitcoinTransactions as rows
     **/
   override def buildScan: RDD[Row] = {
-    val bitcoinTransactionRDD: RDD[(BytesWritable, BitcoinTransaction)] = readRawTransactionRDD()
-
-    bitcoinTransactionRDD
-      .map { case (transactionHash, currentTransaction) =>
-        // map the BitcoinTransaction data structure to a Spark SQL schema
-        val inputs = currentTransaction.getListOfInputs
-          .map { currentTransactionInput =>
-            Seq(
-              currentTransactionInput.getPrevTransactionHash,
-              currentTransactionInput.getPreviousTxOutIndex,
-              currentTransactionInput.getTxInScriptLength,
-              currentTransactionInput.getTxInScript,
-              currentTransactionInput.getSeqNo
-            )
-          }
-
-        val outputs = currentTransaction.getListOfOutputs
-          .map { currentTransactionOutput =>
-            Seq(
-              currentTransactionOutput.getValue,
-              currentTransactionOutput.getTxOutScriptLength,
-              currentTransactionOutput.getTxOutScript
-            )
-          }
-
-        val scriptWitness = currentTransaction.getBitcoinScriptWitness
-          .map { currentTransactionScriptWitnessItem =>
-            Seq(
-              currentTransactionScriptWitnessItem.getStackItemCounter,
-              currentTransactionScriptWitnessItem.getScriptWitnessList
-                .map(currentScriptWitness =>
-                  Seq(
-                    currentScriptWitness.getWitnessScriptLength,
-                    currentScriptWitness.getWitnessScript
-                  )
-                )
-                .map(Row.fromSeq)
-                .toArray
-            )
-          }
-
-        Seq(
-          // map transactions
-          transactionHash.copyBytes, // current transaction hash
-          currentTransaction.getVersion,
-          currentTransaction.getMarker,
-          currentTransaction.getFlag,
-          currentTransaction.getInCounter,
-          currentTransaction.getOutCounter,
-          inputs.map(Row.fromSeq).toArray,
-          outputs.map(Row.fromSeq).toArray,
-          scriptWitness.map(Row.fromSeq).toArray,
-          currentTransaction.getLockTime
-        )
-      }
-      .map(Row.fromSeq)
+    readRawTransactionRDD()
+      .map { case (transactionHash, currentTransaction) => currentTransaction.asScalaSingle(transactionHash.copyBytes()) }
+      .map(Row.fromTuple)
   }
 
   private def readRawTransactionRDD(): RDD[(BytesWritable, BitcoinTransaction)] = {
@@ -170,6 +66,12 @@ case class BitcoinTransactionRelation(
     hadoopConf.set(AbstractBitcoinRecordReader.CONF_USEDIRECTBUFFER, String.valueOf(useDirectBuffer))
     hadoopConf.set(AbstractBitcoinFileInputFormat.CONF_ISSPLITABLE, String.valueOf(isSplittable))
     // read BitcoinBlock
-    BitcoinTransactionFile.load(sqlContext, location, hadoopConf)
+    sqlContext.sparkContext.newAPIHadoopFile(
+      location,
+      classOf[BitcoinTransactionFileInputFormat],
+      classOf[BytesWritable],
+      classOf[BitcoinTransaction],
+      hadoopConf
+    )
   }
 }

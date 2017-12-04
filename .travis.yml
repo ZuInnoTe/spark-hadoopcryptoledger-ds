@@ -1,9 +1,9 @@
 language: scala
 scala:
-- 2.10.5
-- 2.11.7
+- 2.10.6
+- 2.11.8
 script:
-- sbt ++$TRAVIS_SCALA_VERSION clean test
+- sbt ++$TRAVIS_SCALA_VERSION clean spark200:test spark210:test
 # workaround codacy bug
 - mkdir -p target/scala-2.10/coverage-report
 - mkdir -p target/scala-2.11/coverage-report

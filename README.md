@@ -4,8 +4,6 @@
 
 A [Spark datasource](http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources) for the [HadoopCryptoLedger](https://github.com/ZuInnoTe/hadoopcryptoledger/wiki) library.
 
-This Spark datasource assumes 2.2 > Spark >= 2.0 (see note below). If you're using Spark > 1.5, please use version 1.1.2, which is the last version to support Spark < 2.0.
-
 Currently this datasource supports the following formats of the HadoopCryptoLedger library (see schemas at the end of the page):
 * Bitcoin and Altcoin Blockchain
   * Bitcoin Block Datasource format: org.zuinnote.spark.bitcoin.block
@@ -36,10 +34,10 @@ The following options are mapped to the following options of the HadoopCryptoLed
 
 # Setup
 ```
-libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.2.0"
+libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.2"
 ```
 
-The library is published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it.
+The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it.
 
 ## Information Spark 2.2 and outdated Bouncy Castle library
 As [omervk and liorregev point out](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/9), Spark 2.2 uses jets3t 0.9.3, which depends on an outdated version of Bouncy Castle.
@@ -50,7 +48,7 @@ You have the following alternatives:
 2. Remove the outdated bouncy castle libraries from the Spark libraries (and do not use jets3t); or
 3. Wait for an updated jets3t version, which then need to be included into an updated Spark version
 
-Other Spark versions do not currently show any issues (Spark 2.0, 2.1 or 2.3 are not affected).
+Other Spark versions do not currently show any issues (Spark 1.6, 2.0, 2.1 or 2.3 are not affected).
 
 # Develop
 The following sections describe some example code. 
@@ -120,7 +118,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.2.0" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.2" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
@@ -130,7 +128,7 @@ df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bi
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.2.0" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.2" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/ethereum/input", source = "org.zuinnote.spark.ethereum.block", enrich = "false")

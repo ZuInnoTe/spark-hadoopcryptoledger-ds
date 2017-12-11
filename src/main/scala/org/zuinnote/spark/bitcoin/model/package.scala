@@ -72,21 +72,6 @@ package object model {
         BitcoinUtil.getTransactionHash(transaction)
       )
     }
-
-    def asScalaSingle(transactionHash: Array[Byte]): SingleTransaction = {
-      SingleTransaction(
-        transactionHash,
-        transaction.getVersion,
-        transaction.getMarker,
-        transaction.getFlag,
-        transaction.getInCounter,
-        transaction.getOutCounter,
-        transaction.getListOfInputs.asScala.map(toInput),
-        transaction.getListOfOutputs.asScala.map(toOutput),
-        transaction.getBitcoinScriptWitness.asScala.map(toScriptWitnessItem),
-        transaction.getLockTime
-      )
-    }
   }
 
   implicit class FromJavaAuxPOW(val auxPOW: BitcoinAuxPOW) extends AnyVal {
@@ -102,13 +87,13 @@ package object model {
 
       val coinbaseBranch = CoinbaseBranch(
         auxPOW.getCoinbaseBranch.getNumberOfLinks,
-        auxPOW.getCoinbaseBranch.getLinks.asScala,
+        auxPOW.getCoinbaseBranch.getLinks.asScala.map(_.toSeq),
         auxPOW.getCoinbaseBranch.getBranchSideBitmask
       )
 
       val auxBlockChainBranch = AuxBlockChainBranch(
         auxPOW.getAuxBlockChainBranch.getNumberOfLinks,
-        auxPOW.getAuxBlockChainBranch.getLinks.asScala,
+        auxPOW.getAuxBlockChainBranch.getLinks.asScala.map(_.toSeq),
         auxPOW.getCoinbaseBranch.getBranchSideBitmask
       )
 

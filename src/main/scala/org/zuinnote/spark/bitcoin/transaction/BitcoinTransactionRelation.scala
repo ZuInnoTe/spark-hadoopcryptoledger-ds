@@ -54,7 +54,7 @@ final case class BitcoinTransactionRelation(location: String,
     **/
   override def buildScan: RDD[Row] = {
     readRawTransactionRDD()
-      .map { case (transactionHash, currentTransaction) => currentTransaction.asScalaSingle(transactionHash.copyBytes()) }
+      .map { case (transactionHash, currentTransaction) => currentTransaction.asScala.single(transactionHash.copyBytes()) }
       .map(Row.fromTuple)
   }
 

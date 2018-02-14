@@ -34,7 +34,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
 
 # Setup
 ```
-libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.2"
+libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.3"
 ```
 
 The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it.
@@ -118,7 +118,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.2" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.3" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
@@ -128,7 +128,7 @@ df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bi
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.2" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.3" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/ethereum/input", source = "org.zuinnote.spark.ethereum.block", enrich = "false")

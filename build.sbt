@@ -16,7 +16,7 @@ lazy val root = (project in file("."))
     crossScalaVersions := Seq("2.10.6", "2.11.8"),
 
     libraryDependencies ++= Seq(
-      "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.1.3" % "compile",
+      "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.1.4" % "compile",
 
       "org.bouncycastle"          % "bcprov-ext-jdk15on"             % "1.58"  % "provided",
       "org.apache.spark"         %% "spark-core"                     % "2.0.0" % "provided",

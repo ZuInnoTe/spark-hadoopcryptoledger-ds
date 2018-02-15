@@ -42,11 +42,11 @@ package object model {
       )
     }
 
-    def asScalaEnriched: EnrichedEthereumTransaction = {
+    def asScalaEnriched(chainId: Integer): EnrichedEthereumTransaction = {
       EnrichedEthereumTransaction(
         transaction.getNonce, transaction.getValue, transaction.getReceiveAddress, transaction.getGasPrice,
         transaction.getGasLimit, transaction.getData, transaction.getSig_v, transaction.getSig_r, transaction.getSig_s,
-        EthereumUtil.getSendAddress(transaction), EthereumUtil.getTransactionHash(transaction)
+        EthereumUtil.getSendAddress(transaction, chainId), EthereumUtil.getTransactionHash(transaction)
       )
     }
   }
@@ -60,10 +60,10 @@ package object model {
       )
     }
 
-    def asScalaEnriched: EnrichedEthereumBlock = {
+    def asScalaEnriched(chainId: Integer): EnrichedEthereumBlock = {
       EnrichedEthereumBlock(
         toHeader(block.getEthereumBlockHeader),
-        block.getEthereumTransactions.asScala.map(_.asScalaEnriched),
+        block.getEthereumTransactions.asScala.map(_.asScalaEnriched(chainId)),
         block.getUncleHeaders.asScala.map(toHeader)
       )
     }

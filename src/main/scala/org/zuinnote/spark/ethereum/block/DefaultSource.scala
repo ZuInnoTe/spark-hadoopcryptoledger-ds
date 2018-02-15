@@ -38,8 +38,9 @@ class DefaultSource extends RelationProvider {
       .getOrElse("useDirectBuffer", String.valueOf(AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER))
       .toBoolean
     val enrich = parameters.getOrElse("enrich", "false").toBoolean
+      val chainId = parameters.getOrElse("chainId", "1").toInt
 
     // parse the parameters into hadoop objects
-    EthereumBlockRelation(path, maxBlockSize, useDirectBuffer, enrich)(sqlContext)
+    EthereumBlockRelation(path, maxBlockSize, useDirectBuffer, enrich,chainId)(sqlContext)
   }
 }

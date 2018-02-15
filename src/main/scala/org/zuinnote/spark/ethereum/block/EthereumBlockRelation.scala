@@ -36,7 +36,7 @@ import org.zuinnote.spark.ethereum.model._
 final case class EthereumBlockRelation(location: String,
                                        maxBlockSize: Integer = AbstractEthereumRecordReader.DEFAULT_MAXSIZE_ETHEREUMBLOCK,
                                        useDirectBuffer: Boolean = AbstractEthereumRecordReader.DEFAULT_USEDIRECTBUFFER,
-                                       enrich: Boolean = false)(@transient val sqlContext: SQLContext)
+                                       enrich: Boolean = false, chainId: Integer=1)(@transient val sqlContext: SQLContext)
   extends BaseRelation with TableScan with Serializable {
 
   override def schema: StructType = {
@@ -58,7 +58,7 @@ final case class EthereumBlockRelation(location: String,
 
     if (enrich) {
       ethereumBlockRDD
-        .map { case (_, block) => block.asScalaEnriched }
+        .map { case (_, block) => block.asScalaEnriched(chainId) }
         .map(Row.fromTuple)
     } else {
       ethereumBlockRDD

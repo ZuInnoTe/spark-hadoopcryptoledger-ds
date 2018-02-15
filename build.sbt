@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 
     name := "spark-hadoopcryptoledger-ds",
 
-    version := "1.2.0",
+    version := "1.1.4",
 
     scalaVersion := "2.11.8",
 
@@ -61,8 +61,8 @@ lazy val root = (project in file("."))
   .settings(
     inConfig(Spark200)(
       libraryDependencies ++= Seq(
-        "org.apache.spark" %% "spark-core" % "2.0.0" % "it",
-        "org.apache.spark" %% "spark-sql"  % "2.0.0" % "it"
+        "org.apache.spark" %% "spark-core" % "2.0.1" % "it",
+        "org.apache.spark" %% "spark-sql"  % "2.0.1" % "it"
       )
     ),
     inConfig(Spark210)(

@@ -38,7 +38,12 @@ The following options are mapped to the following options of the HadoopCryptoLed
 libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.4"
 ```
 
-The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it.
+The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it. 
+
+If you use Ethereum and the enrich functionality then you need the Bouncycastle dependency:
+```
+libraryDependencies += "org.bouncycastle" %% "sbcprov-ext-jdk15on" % "1.58"
+```
 
 ## Information Spark 2.2 and outdated Bouncy Castle library
 As [omervk and liorregev point out](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/9), Spark 2.2 uses jets3t 0.9.3, which depends on an outdated version of Bouncy Castle.

@@ -31,6 +31,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
   * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"
   * "enrich" in case of true it additional data is calculated for transactions: sendAddress and hash. Default: false. Note: you must include the bouncycastle dependency to use this.
+  * "chainId" this is needed if you enrich to correctly calculate the SendAddress. Examples are 1 Frontier (Mainnet), 2 Morden, 3 Ropsten, but other chainIds exist for Altcoins based on Ethereum. Default 1.
 
 # Setup
 ```

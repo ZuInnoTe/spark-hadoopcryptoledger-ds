@@ -31,13 +31,19 @@ The following options are mapped to the following options of the HadoopCryptoLed
   * "maxblockSize" is mapped to "hadoopcryptoledger.ethereumlockinputformat.maxblocksize"
   * "useDirectBuffer" is mapped to "hadoopcryptoledeger.ethereumblockinputformat.usedirectbuffer"
   * "enrich" in case of true it additional data is calculated for transactions: sendAddress and hash. Default: false. Note: you must include the bouncycastle dependency to use this.
+  * "chainId" this is needed if you enrich to correctly calculate the SendAddress. Examples are 1 Frontier (Mainnet), 2 Morden, 3 Ropsten, but other chainIds exist for Altcoins based on Ethereum. Default 1.
 
 # Setup
 ```
-libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.3"
+libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.1.4"
 ```
 
-The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it.
+The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it. 
+
+If you use Ethereum and the enrich functionality then you need the Bouncycastle dependency:
+```
+libraryDependencies += "org.bouncycastle" %% "sbcprov-ext-jdk15on" % "1.58"
+```
 
 ## Information Spark 2.2 and outdated Bouncy Castle library
 As [omervk and liorregev point out](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/9), Spark 2.2 uses jets3t 0.9.3, which depends on an outdated version of Bouncy Castle.
@@ -118,7 +124,7 @@ DataFrame df = sqlContext.read()
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.3" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.4" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bitcoin.block", magic = "F9BEB4D9")
@@ -128,7 +134,7 @@ df <- read.df(sqlContext, "/user/bitcoin/input", source = "org.zuinnote.spark.bi
 ```
 library(SparkR)
 
-Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.3" "sparkr-shell"')
+Sys.setenv('SPARKR_SUBMIT_ARGS'='"--packages" "com.github.zuinnote:spark-hadoopcrytoledger-ds_2.11:1.1.4" "sparkr-shell"')
 sqlContext <- sparkRSQL.init(sc)
 
 df <- read.df(sqlContext, "/user/ethereum/input", source = "org.zuinnote.spark.ethereum.block", enrich = "false")

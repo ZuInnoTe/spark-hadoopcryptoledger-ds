@@ -58,6 +58,7 @@ lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
   .configs(Spark200, Spark210)
+  .enablePlugins(JacocoItPlugin)
   .settings(
     inConfig(Spark200)(
       libraryDependencies ++= Seq(

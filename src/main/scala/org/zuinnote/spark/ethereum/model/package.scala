@@ -16,6 +16,7 @@
 
 /**
 * Author: Omer van Kloeten (https://github.com/omervk)
+* Jörn Franke <zuinnote@gmail.com>
 **/
 
 package org.zuinnote.spark.ethereum
@@ -25,27 +26,29 @@ import org.zuinnote.hadoop.ethereum.format.common.EthereumUtil
 
 import scala.collection.JavaConverters._
 
+
 package object model {
   private def toHeader(header: common.EthereumBlockHeader): EthereumBlockHeader = {
     EthereumBlockHeader(
       header.getParentHash, header.getUncleHash, header.getCoinBase, header.getStateRoot, header.getTxTrieRoot,
-      header.getReceiptTrieRoot, header.getLogsBloom, header.getDifficulty, header.getTimestamp, header.getNumber,
-      header.getGasLimit, header.getGasUsed, header.getMixHash, header.getExtraData, header.getNonce
+      header.getReceiptTrieRoot, header.getLogsBloom, header.getDifficulty, header.getTimestamp, header.getNumber, header.getNumberRaw,
+      header.getGasLimit, header.getGasLimitRaw, header.getGasUsed, header.getGasUsedRaw, header.getMixHash, header.getExtraData, header.getNonce
     )
   }
 
   implicit class FromJavaTransaction(val transaction: common.EthereumTransaction) extends AnyVal {
     def asScala: EthereumTransaction = {
       EthereumTransaction(
-        transaction.getNonce, transaction.getValue, transaction.getReceiveAddress, transaction.getGasPrice,
-        transaction.getGasLimit, transaction.getData, transaction.getSig_v, transaction.getSig_r, transaction.getSig_s
+        transaction.getNonce, transaction.getValue, transaction.getValueRaw, transaction.getReceiveAddress, transaction.getGasPrice, transaction.getGasPriceRaw,
+        transaction.getGasLimit, transaction.getGasLimitRaw, transaction.getData, transaction.getSig_v, transaction.getSig_r, transaction.getSig_s
       )
     }
 
     def asScalaEnriched(chainId: Integer): EnrichedEthereumTransaction = {
       EnrichedEthereumTransaction(
-        transaction.getNonce, transaction.getValue, transaction.getReceiveAddress, transaction.getGasPrice,
-        transaction.getGasLimit, transaction.getData, transaction.getSig_v, transaction.getSig_r, transaction.getSig_s,
+
+        transaction.getNonce, transaction.getValue, transaction.getValueRaw, transaction.getReceiveAddress, transaction.getGasPrice, transaction.getGasPriceRaw,
+        transaction.getGasLimit, transaction.getGasLimitRaw, transaction.getData, transaction.getSig_v, transaction.getSig_r, transaction.getSig_s,
         EthereumUtil.getSendAddress(transaction, chainId), EthereumUtil.getTransactionHash(transaction)
       )
     }

@@ -16,14 +16,17 @@
 
 /**
 * Author: Omer van Kloeten (https://github.com/omervk)
+* Jörn Franke <zuinnote@gmail.com>
 **/
 
 package org.zuinnote.spark.bitcoin.model
+import java.math.BigInteger
+
 
 final case class Input(prevTransactionHash: Array[Byte], previousTxOutIndex: Long, txInScriptLength: Array[Byte],
                        txInScript: Array[Byte], seqNo: Long)
 
-final case class Output(value: Long, txOutScriptLength: Array[Byte], txOutScript: Array[Byte])
+final case class Output(value: BigInteger, txOutScriptLength: Array[Byte], txOutScript: Array[Byte])
 
 final case class ScriptWitness(witnessScriptLength: Array[Byte], witnessScript: Array[Byte])
 

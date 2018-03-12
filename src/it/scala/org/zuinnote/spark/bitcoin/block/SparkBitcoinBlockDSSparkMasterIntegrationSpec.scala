@@ -24,7 +24,6 @@ package org.zuinnote.spark.bitcoin.block
 
 import java.io.{File, IOException}
 import java.nio.file.Files
-
 import org.apache.commons.io.FileUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
@@ -33,6 +32,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
 import org.zuinnote.spark.bitcoin.model.{BitcoinBlock, BitcoinBlockWithAuxPOW, EnrichedBitcoinBlock, EnrichedBitcoinBlockWithAuxPOW}
+import java.math.BigDecimal
 
 class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
@@ -169,7 +169,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with Before
     assert(4294967295L == seqNo(0).getLong(0))
     val transactionsLOODF = transactionsDF.select(explode(transactionsDF("transactions.listOfOutputs")).alias("listOfOutputs"))
     val value = transactionsLOODF.select("listOfOutputs.value").collect
-    assert(5000000000L == value(0).getLong(0))
+    assert(BigDecimal.valueOf(5000000000L).compareTo(value(0).getDecimal(0))==0)
     val txOutScriptLength = transactionsLOODF.select("listOfOutputs.txOutScriptLength").collect
     val txOutScriptLengthExpected: Array[Byte] = Array(0x43.toByte)
     assert(txOutScriptLengthExpected.deep == txOutScriptLength(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -267,7 +267,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with Before
     assert(4294967295L == seqNo(0).getLong(0))
     val transactionsLOODF = transactionsDF.select(explode(transactionsDF("transactions.listOfOutputs")).alias("listOfOutputs"))
     val value = transactionsLOODF.select("listOfOutputs.value").collect
-    assert(5000000000L == value(0).getLong(0))
+    assert(BigDecimal.valueOf(5000000000L).compareTo(value(0).getDecimal(0))==0)
     val txOutScriptLength = transactionsLOODF.select("listOfOutputs.txOutScriptLength").collect
     val txOutScriptLengthExpected: Array[Byte] = Array(0x43.toByte)
     assert(txOutScriptLengthExpected.deep == txOutScriptLength(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -374,7 +374,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with Before
     assert(4294967295L == seqNo(0).getLong(0))
     val transactionsLOODF = transactionsDF.select(explode(transactionsDF("transactions.listOfOutputs")).alias("listOfOutputs"))
     val value = transactionsLOODF.select("listOfOutputs.value").collect
-    assert(5000000000L == value(0).getLong(0))
+    assert(BigDecimal.valueOf(5000000000L).compareTo(value(0).getDecimal(0))==0)
     val txOutScriptLength = transactionsLOODF.select("listOfOutputs.txOutScriptLength").collect
     val txOutScriptLengthExpected: Array[Byte] = Array(0x43.toByte)
     assert(txOutScriptLengthExpected.deep == txOutScriptLength(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -477,7 +477,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with Before
     assert(4294967295L == seqNo(0).getLong(0))
     val transactionsLOODF = transactionsDF.select(explode(transactionsDF("transactions.listOfOutputs")).alias("listOfOutputs"))
     val value = transactionsLOODF.select("listOfOutputs.value").collect
-    assert(5000000000L == value(0).getLong(0))
+    assert(BigDecimal.valueOf(5000000000L).compareTo(value(0).getDecimal(0))==0)
     val txOutScriptLength = transactionsLOODF.select("listOfOutputs.txOutScriptLength").collect
     val txOutScriptLengthExpected: Array[Byte] = Array(0x43.toByte)
     assert(txOutScriptLengthExpected.deep == txOutScriptLength(0).get(0).asInstanceOf[Array[Byte]].deep)

@@ -34,6 +34,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
 import org.zuinnote.spark.ethereum.model.{EnrichedEthereumBlock, EthereumBlock}
+import java.math.BigDecimal
 
 class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
@@ -142,15 +143,15 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedBhTimestamp = format.parse(expectedDTStr).getTime / 1000;
     val bhTimestamp = df.select("ethereumBlockHeader.timestamp").collect
     assert(expectedBhTimestamp == bhTimestamp(0).get(0))
-    val expectedBhNumber = 1346406
+    val expectedBhNumber = 1346406L
     val bhNumber = df.select("ethereumBlockHeader.number").collect
-    assert(expectedBhNumber == bhNumber(0).get(0))
-    val expectedBhGasLimit = 4712388
+    assert(BigDecimal.valueOf(expectedBhNumber).compareTo(bhNumber(0).getDecimal(0))==0)
+    val expectedBhGasLimit = 4712388L
     val bhGasLimit = df.select("ethereumBlockHeader.gasLimit").collect
-    assert(expectedBhGasLimit == bhGasLimit(0).get(0))
-    val expectedBhGasUsed = 126000
+    assert(BigDecimal.valueOf(expectedBhGasLimit).compareTo(bhGasLimit(0).getDecimal(0))==0)
+    val expectedBhGasUsed = 126000L
     val bhGasUsed = df.select("ethereumBlockHeader.gasUsed").collect
-    assert(expectedBhGasUsed == bhGasUsed(0).get(0))
+    assert(BigDecimal.valueOf(expectedBhGasUsed).compareTo(bhGasUsed(0).getDecimal(0))==0)
     val expectedBhMixHash = Array(0x4F.toByte, 0x57.toByte, 0x71.toByte, 0xB7.toByte, 0x9A.toByte, 0x8E.toByte, 0x6E.toByte, 0x21.toByte, 0x99.toByte, 0x35.toByte, 0x53.toByte, 0x9C.toByte, 0x47.toByte, 0x3E.toByte, 0x23.toByte, 0xBA.toByte, 0xFD.toByte, 0x2C.toByte, 0xA3.toByte, 0x5C.toByte, 0xC1.toByte, 0x86.toByte, 0x20.toByte, 0x66.toByte, 0x31.toByte, 0xC3.toByte, 0xB0.toByte, 0x9E.toByte, 0xD5.toByte, 0x76.toByte, 0x19.toByte, 0x4A.toByte)
     val bhMixHash = df.select("ethereumBlockHeader.mixHash").collect
     assert(expectedBhMixHash.deep == bhMixHash(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -174,13 +175,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt1Nonce = Array(0x0C.toByte)
     assert(expectedt1Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1Value = 1069000990000000000L
-    assert(expectedt1Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt1ReceiveAddress = Array(0x1E.toByte, 0x75.toByte, 0xF0.toByte, 0x2A.toByte, 0x6E.toByte, 0x9F.toByte, 0xF4.toByte, 0xFF.toByte, 0x16.toByte, 0x33.toByte, 0x38.toByte, 0x25.toByte, 0xD9.toByte, 0x09.toByte, 0xBB.toByte, 0x03.toByte, 0x33.toByte, 0x06.toByte, 0xB7.toByte, 0x8B.toByte)
     assert(expectedt1ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1GasPrice = 20000000000L
-    assert(expectedt1GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt1GasLimit = 21000
-    assert(expectedt1GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt1GasLimit = 21000L
+    assert(BigDecimal.valueOf(expectedt1GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt1Data: Array[Byte] = Array()
     assert(expectedt1Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1sigv = Array(0x1B.toByte)
@@ -193,13 +194,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt2Nonce = Array(0xFF.toByte, 0xD7.toByte)
     assert(expectedt2Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2Value = 5110508700000000000L
-    assert(expectedt2Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt2ReceiveAddress = Array(0x54.toByte, 0x67.toByte, 0xFA.toByte, 0xBD.toByte, 0x30.toByte, 0xEB.toByte, 0x61.toByte, 0xA1.toByte, 0x84.toByte, 0x61.toByte, 0xD1.toByte, 0x53.toByte, 0xD8.toByte, 0xC6.toByte, 0xFF.toByte, 0xB1.toByte, 0x9D.toByte, 0xD4.toByte, 0x7A.toByte, 0x25.toByte)
     assert(expectedt2ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2GasPrice = 20000000000L
-    assert(expectedt2GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt2GasLimit = 90000
-    assert(expectedt2GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt2GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt2GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt2Data: Array[Byte] = Array()
     assert(expectedt2Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2sigv = Array(0x1B.toByte)
@@ -212,13 +213,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt3Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDD.toByte)
     assert(expectedt3Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3Value = 11667800000000000L
-    assert(expectedt3Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt3ReceiveAddress = Array(0xB4.toByte, 0xD0.toByte, 0xCA.toByte, 0x2B.toByte, 0x7E.toByte, 0x4C.toByte, 0xB1.toByte, 0xE0.toByte, 0x61.toByte, 0x0D.toByte, 0x02.toByte, 0x15.toByte, 0x4A.toByte, 0x10.toByte, 0x16.toByte, 0x3A.toByte, 0xB0.toByte, 0xF4.toByte, 0x2E.toByte, 0x65.toByte)
     assert(expectedt3ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3GasPrice = 20000000000L
-    assert(expectedt3GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt3GasLimit = 90000
-    assert(expectedt3GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt3GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt3GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt3Data: Array[Byte] = Array()
     assert(expectedt3Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3sigv = Array(0x1C.toByte)
@@ -231,13 +232,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt4Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDE.toByte)
     assert(expectedt4Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4Value = 130970170000000000L
-    assert(expectedt4Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt4ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt4ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4GasPrice = 20000000000L
-    assert(expectedt4GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt4GasLimit = 90000
-    assert(expectedt4GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt4GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt4GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt4Data: Array[Byte] = Array()
     assert(expectedt4Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4sigv = Array(0x1B.toByte)
@@ -250,13 +251,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt5Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDF.toByte)
     assert(expectedt5Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5Value = 144683800000000000L
-    assert(expectedt5Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt5ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt5ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5GasPrice = 20000000000L
-    assert(expectedt5GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt5GasLimit = 90000
-    assert(expectedt5GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt5GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt5GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt5Data: Array[Byte] = Array()
     assert(expectedt5Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5sigv = Array(0x1C.toByte)
@@ -269,13 +270,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt6Nonce = Array(0x02.toByte, 0xD7.toByte, 0xE0.toByte)
     assert(expectedt6Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6Value = 143694920000000000L
-    assert(expectedt6Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt6ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt6ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6GasPrice = 20000000000L
-    assert(expectedt6GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt6GasLimit = 90000
-    assert(expectedt6GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt6GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt6GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt6Data: Array[Byte] = Array()
     assert(expectedt6Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6sigv = Array(0x1C.toByte)
@@ -347,15 +348,15 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedBhTimestamp = format.parse(expectedDTStr).getTime / 1000;
     val bhTimestamp = df.select("ethereumBlockHeader.timestamp").collect
     assert(expectedBhTimestamp == bhTimestamp(0).get(0))
-    val expectedBhNumber = 1346406
+    val expectedBhNumber = 1346406L
     val bhNumber = df.select("ethereumBlockHeader.number").collect
-    assert(expectedBhNumber == bhNumber(0).get(0))
-    val expectedBhGasLimit = 4712388
+    assert(BigDecimal.valueOf(expectedBhNumber).compareTo(bhNumber(0).getDecimal(0))==0)
+    val expectedBhGasLimit = 4712388L
     val bhGasLimit = df.select("ethereumBlockHeader.gasLimit").collect
-    assert(expectedBhGasLimit == bhGasLimit(0).get(0))
-    val expectedBhGasUsed = 126000
+    assert(BigDecimal.valueOf(expectedBhGasLimit).compareTo(bhGasLimit(0).getDecimal(0))==0)
+    val expectedBhGasUsed = 126000L
     val bhGasUsed = df.select("ethereumBlockHeader.gasUsed").collect
-    assert(expectedBhGasUsed == bhGasUsed(0).get(0))
+    assert(BigDecimal.valueOf(expectedBhGasUsed).compareTo(bhGasUsed(0).getDecimal(0))==0)
     val expectedBhMixHash = Array(0x4F.toByte, 0x57.toByte, 0x71.toByte, 0xB7.toByte, 0x9A.toByte, 0x8E.toByte, 0x6E.toByte, 0x21.toByte, 0x99.toByte, 0x35.toByte, 0x53.toByte, 0x9C.toByte, 0x47.toByte, 0x3E.toByte, 0x23.toByte, 0xBA.toByte, 0xFD.toByte, 0x2C.toByte, 0xA3.toByte, 0x5C.toByte, 0xC1.toByte, 0x86.toByte, 0x20.toByte, 0x66.toByte, 0x31.toByte, 0xC3.toByte, 0xB0.toByte, 0x9E.toByte, 0xD5.toByte, 0x76.toByte, 0x19.toByte, 0x4A.toByte)
     val bhMixHash = df.select("ethereumBlockHeader.mixHash").collect
     assert(expectedBhMixHash.deep == bhMixHash(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -379,13 +380,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt1Nonce = Array(0x0C.toByte)
     assert(expectedt1Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1Value = 1069000990000000000L
-    assert(expectedt1Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt1ReceiveAddress = Array(0x1E.toByte, 0x75.toByte, 0xF0.toByte, 0x2A.toByte, 0x6E.toByte, 0x9F.toByte, 0xF4.toByte, 0xFF.toByte, 0x16.toByte, 0x33.toByte, 0x38.toByte, 0x25.toByte, 0xD9.toByte, 0x09.toByte, 0xBB.toByte, 0x03.toByte, 0x33.toByte, 0x06.toByte, 0xB7.toByte, 0x8B.toByte)
     assert(expectedt1ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1GasPrice = 20000000000L
-    assert(expectedt1GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt1GasLimit = 21000
-    assert(expectedt1GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt1GasLimit = 21000L
+    assert(BigDecimal.valueOf(expectedt1GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt1Data: Array[Byte] = Array()
     assert(expectedt1Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1sigv = Array(0x1B.toByte)
@@ -398,13 +399,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt2Nonce = Array(0xFF.toByte, 0xD7.toByte)
     assert(expectedt2Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2Value = 5110508700000000000L
-    assert(expectedt2Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt2ReceiveAddress = Array(0x54.toByte, 0x67.toByte, 0xFA.toByte, 0xBD.toByte, 0x30.toByte, 0xEB.toByte, 0x61.toByte, 0xA1.toByte, 0x84.toByte, 0x61.toByte, 0xD1.toByte, 0x53.toByte, 0xD8.toByte, 0xC6.toByte, 0xFF.toByte, 0xB1.toByte, 0x9D.toByte, 0xD4.toByte, 0x7A.toByte, 0x25.toByte)
     assert(expectedt2ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2GasPrice = 20000000000L
-    assert(expectedt2GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt2GasLimit = 90000
-    assert(expectedt2GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt2GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt2GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt2Data: Array[Byte] = Array()
     assert(expectedt2Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2sigv = Array(0x1B.toByte)
@@ -417,13 +418,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt3Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDD.toByte)
     assert(expectedt3Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3Value = 11667800000000000L
-    assert(expectedt3Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt3ReceiveAddress = Array(0xB4.toByte, 0xD0.toByte, 0xCA.toByte, 0x2B.toByte, 0x7E.toByte, 0x4C.toByte, 0xB1.toByte, 0xE0.toByte, 0x61.toByte, 0x0D.toByte, 0x02.toByte, 0x15.toByte, 0x4A.toByte, 0x10.toByte, 0x16.toByte, 0x3A.toByte, 0xB0.toByte, 0xF4.toByte, 0x2E.toByte, 0x65.toByte)
     assert(expectedt3ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3GasPrice = 20000000000L
-    assert(expectedt3GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt3GasLimit = 90000
-    assert(expectedt3GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt3GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt3GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt3Data: Array[Byte] = Array()
     assert(expectedt3Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3sigv = Array(0x1C.toByte)
@@ -436,13 +437,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt4Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDE.toByte)
     assert(expectedt4Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4Value = 130970170000000000L
-    assert(expectedt4Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt4ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt4ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4GasPrice = 20000000000L
-    assert(expectedt4GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt4GasLimit = 90000
-    assert(expectedt4GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt4GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt4GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt4Data: Array[Byte] = Array()
     assert(expectedt4Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4sigv = Array(0x1B.toByte)
@@ -455,13 +456,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt5Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDF.toByte)
     assert(expectedt5Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5Value = 144683800000000000L
-    assert(expectedt5Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt5ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt5ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5GasPrice = 20000000000L
-    assert(expectedt5GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt5GasLimit = 90000
-    assert(expectedt5GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt5GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt5GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt5Data: Array[Byte] = Array()
     assert(expectedt5Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5sigv = Array(0x1C.toByte)
@@ -474,13 +475,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt6Nonce = Array(0x02.toByte, 0xD7.toByte, 0xE0.toByte)
     assert(expectedt6Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6Value = 143694920000000000L
-    assert(expectedt6Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt6ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt6ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6GasPrice = 20000000000L
-    assert(expectedt6GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt6GasLimit = 90000
-    assert(expectedt6GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt6GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt6GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt6Data: Array[Byte] = Array()
     assert(expectedt6Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6sigv = Array(0x1C.toByte)
@@ -555,15 +556,15 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedBhTimestamp = format.parse(expectedDTStr).getTime / 1000;
     val bhTimestamp = df.select("ethereumBlockHeader.timestamp").collect
     assert(expectedBhTimestamp == bhTimestamp(0).get(0))
-    val expectedBhNumber = 1346406
+    val expectedBhNumber = 1346406L
     val bhNumber = df.select("ethereumBlockHeader.number").collect
-    assert(expectedBhNumber == bhNumber(0).get(0))
-    val expectedBhGasLimit = 4712388
+      assert(BigDecimal.valueOf(expectedBhNumber).compareTo(bhNumber(0).getDecimal(0))==0)
+    val expectedBhGasLimit = 4712388L
     val bhGasLimit = df.select("ethereumBlockHeader.gasLimit").collect
-    assert(expectedBhGasLimit == bhGasLimit(0).get(0))
-    val expectedBhGasUsed = 126000
+    assert(BigDecimal.valueOf(expectedBhGasLimit).compareTo(bhGasLimit(0).getDecimal(0))==0)
+    val expectedBhGasUsed = 126000L
     val bhGasUsed = df.select("ethereumBlockHeader.gasUsed").collect
-    assert(expectedBhGasUsed == bhGasUsed(0).get(0))
+    assert(BigDecimal.valueOf(expectedBhGasUsed).compareTo(bhGasUsed(0).getDecimal(0))==0)
     val expectedBhMixHash = Array(0x4F.toByte, 0x57.toByte, 0x71.toByte, 0xB7.toByte, 0x9A.toByte, 0x8E.toByte, 0x6E.toByte, 0x21.toByte, 0x99.toByte, 0x35.toByte, 0x53.toByte, 0x9C.toByte, 0x47.toByte, 0x3E.toByte, 0x23.toByte, 0xBA.toByte, 0xFD.toByte, 0x2C.toByte, 0xA3.toByte, 0x5C.toByte, 0xC1.toByte, 0x86.toByte, 0x20.toByte, 0x66.toByte, 0x31.toByte, 0xC3.toByte, 0xB0.toByte, 0x9E.toByte, 0xD5.toByte, 0x76.toByte, 0x19.toByte, 0x4A.toByte)
     val bhMixHash = df.select("ethereumBlockHeader.mixHash").collect
     assert(expectedBhMixHash.deep == bhMixHash(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -589,13 +590,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt1Nonce = Array(0x0C.toByte)
     assert(expectedt1Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1Value = 1069000990000000000L
-    assert(expectedt1Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt1ReceiveAddress = Array(0x1E.toByte, 0x75.toByte, 0xF0.toByte, 0x2A.toByte, 0x6E.toByte, 0x9F.toByte, 0xF4.toByte, 0xFF.toByte, 0x16.toByte, 0x33.toByte, 0x38.toByte, 0x25.toByte, 0xD9.toByte, 0x09.toByte, 0xBB.toByte, 0x03.toByte, 0x33.toByte, 0x06.toByte, 0xB7.toByte, 0x8B.toByte)
     assert(expectedt1ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1GasPrice = 20000000000L
-    assert(expectedt1GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt1GasLimit = 21000
-    assert(expectedt1GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt1GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt1GasLimit = 21000L
+    assert(BigDecimal.valueOf(expectedt1GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt1Data: Array[Byte] = Array()
     assert(expectedt1Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt1sigv = Array(0x1B.toByte)
@@ -613,13 +614,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt2Nonce = Array(0xFF.toByte, 0xD7.toByte)
     assert(expectedt2Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2Value = 5110508700000000000L
-    assert(expectedt2Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt2ReceiveAddress = Array(0x54.toByte, 0x67.toByte, 0xFA.toByte, 0xBD.toByte, 0x30.toByte, 0xEB.toByte, 0x61.toByte, 0xA1.toByte, 0x84.toByte, 0x61.toByte, 0xD1.toByte, 0x53.toByte, 0xD8.toByte, 0xC6.toByte, 0xFF.toByte, 0xB1.toByte, 0x9D.toByte, 0xD4.toByte, 0x7A.toByte, 0x25.toByte)
     assert(expectedt2ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2GasPrice = 20000000000L
-    assert(expectedt2GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt2GasLimit = 90000
-    assert(expectedt2GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt2GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt2GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt2GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt2Data: Array[Byte] = Array()
     assert(expectedt2Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt2sigv = Array(0x1B.toByte)
@@ -637,13 +638,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt3Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDD.toByte)
     assert(expectedt3Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3Value = 11667800000000000L
-    assert(expectedt3Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt3ReceiveAddress = Array(0xB4.toByte, 0xD0.toByte, 0xCA.toByte, 0x2B.toByte, 0x7E.toByte, 0x4C.toByte, 0xB1.toByte, 0xE0.toByte, 0x61.toByte, 0x0D.toByte, 0x02.toByte, 0x15.toByte, 0x4A.toByte, 0x10.toByte, 0x16.toByte, 0x3A.toByte, 0xB0.toByte, 0xF4.toByte, 0x2E.toByte, 0x65.toByte)
     assert(expectedt3ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3GasPrice = 20000000000L
-    assert(expectedt3GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt3GasLimit = 90000
-    assert(expectedt3GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt3GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt3GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt3GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt3Data: Array[Byte] = Array()
     assert(expectedt3Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt3sigv = Array(0x1C.toByte)
@@ -661,13 +662,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt4Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDE.toByte)
     assert(expectedt4Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4Value = 130970170000000000L
-    assert(expectedt4Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt4ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt4ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4GasPrice = 20000000000L
-    assert(expectedt4GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt4GasLimit = 90000
-    assert(expectedt4GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt4GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt4GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt4GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt4Data: Array[Byte] = Array()
     assert(expectedt4Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt4sigv = Array(0x1B.toByte)
@@ -685,13 +686,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt5Nonce = Array(0x02.toByte, 0xD7.toByte, 0xDF.toByte)
     assert(expectedt5Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5Value = 144683800000000000L
-    assert(expectedt5Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt5ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt5ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5GasPrice = 20000000000L
-    assert(expectedt5GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt5GasLimit = 90000
-    assert(expectedt5GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt5GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt5GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt5GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt5Data: Array[Byte] = Array()
     assert(expectedt5Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt5sigv = Array(0x1C.toByte)
@@ -708,13 +709,13 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     val expectedt6Nonce = Array(0x02.toByte, 0xD7.toByte, 0xE0.toByte)
     assert(expectedt6Nonce.deep == tnonces(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6Value = 143694920000000000L
-    assert(expectedt6Value == tvalues(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6Value).compareTo(tvalues(transactNum).getDecimal(0))==0)
     val expectedt6ReceiveAddress = Array(0x1F.toByte, 0x57.toByte, 0xF8.toByte, 0x26.toByte, 0xCA.toByte, 0xF5.toByte, 0x94.toByte, 0xF7.toByte, 0xA8.toByte, 0x37.toByte, 0xD9.toByte, 0xFC.toByte, 0x09.toByte, 0x24.toByte, 0x56.toByte, 0x87.toByte, 0x0A.toByte, 0x28.toByte, 0x93.toByte, 0x65.toByte)
     assert(expectedt6ReceiveAddress.deep == treceiveAddresses(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6GasPrice = 20000000000L
-    assert(expectedt6GasPrice == tgasPrices(transactNum).get(0))
-    val expectedt6GasLimit = 90000
-    assert(expectedt6GasLimit == tgasLimits(transactNum).get(0))
+    assert(BigDecimal.valueOf(expectedt6GasPrice).compareTo(tgasPrices(transactNum).getDecimal(0))==0)
+    val expectedt6GasLimit = 90000L
+    assert(BigDecimal.valueOf(expectedt6GasLimit).compareTo(tgasLimits(transactNum).getDecimal(0))==0)
     val expectedt6Data: Array[Byte] = Array()
     assert(expectedt6Data.deep == tdatas(transactNum).get(0).asInstanceOf[Array[Byte]].deep)
     val expectedt6sigv = Array(0x1C.toByte)

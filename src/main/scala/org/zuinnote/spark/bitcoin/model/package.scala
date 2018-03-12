@@ -16,12 +16,15 @@
 
 /**
 * Author: Omer van Kloeten (https://github.com/omervk)
+* Jörn Franke <zuinnote@gmail.com>
 **/
 
 package org.zuinnote.spark.bitcoin
 
 import org.zuinnote.hadoop.bitcoin.format.common._
 import scala.collection.JavaConverters._
+
+
 
 package object model {
   private def toInput(input: BitcoinTransactionInput): Input = {

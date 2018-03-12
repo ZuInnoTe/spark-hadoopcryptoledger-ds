@@ -26,7 +26,6 @@ import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.model._
 
 import scala.collection.JavaConverters._
-
 /**
   * Author: Jörn Franke <zuinnote@gmail.com>
   *
@@ -42,19 +41,22 @@ final case class BitcoinBlockRelation(location: String,
   extends BaseRelation with TableScan with Serializable {
 
   override def schema: StructType = {
+    var result: StructType = null;
     if (readAuxPOW) {
+
       if (enrich) {
-        Encoders.product[EnrichedBitcoinBlockWithAuxPOW].schema
+        result=Encoders.product[EnrichedBitcoinBlockWithAuxPOW].schema
       } else {
-        Encoders.product[BitcoinBlockWithAuxPOW].schema
+        result=Encoders.product[BitcoinBlockWithAuxPOW].schema
       }
     } else {
       if (enrich) {
-        Encoders.product[EnrichedBitcoinBlock].schema
+        result=Encoders.product[EnrichedBitcoinBlock].schema
       } else {
-        Encoders.product[BitcoinBlock].schema
+        result=Encoders.product[BitcoinBlock].schema
       }
     }
+    result
   }
 
   /**

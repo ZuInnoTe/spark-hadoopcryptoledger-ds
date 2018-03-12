@@ -44,7 +44,11 @@ final case class BitcoinTransactionRelation(location: String,
     with TableScan
     with Serializable {
 
-  override def schema: StructType = Encoders.product[SingleTransaction].schema
+  override def schema: StructType = {
+    val encodedSchema=Encoders.product[SingleTransaction].schema
+
+  encodedSchema
+  }
 
   /**
     * Used by Spark to fetch Bitcoin transactions according to the schema specified above from files.

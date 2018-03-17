@@ -44,6 +44,8 @@ If you use Ethereum and the enrich functionality then you need the Bouncycastle 
 ```
 libraryDependencies += "org.bouncycastle" %% "sbcprov-ext-jdk15on" % "1.58"
 ```
+## Information Spark 2.0 and 2.1 BigInteger too large
+Spark 2.0 and Spark 2.1 have a bug (see https://issues.apache.org/jira/browse/SPARK-20341) that does not allow Big Integers with a precision large than 19. You may face those in the Ethereum blockchain. We recommend to use Spark 2.3 latest.
 
 ## Information Spark 2.2 and outdated Bouncy Castle library
 As [omervk and liorregev point out](https://github.com/ZuInnoTe/spark-hadoopcryptoledger-ds/issues/9), Spark 2.2 uses jets3t 0.9.3, which depends on an outdated version of Bouncy Castle.

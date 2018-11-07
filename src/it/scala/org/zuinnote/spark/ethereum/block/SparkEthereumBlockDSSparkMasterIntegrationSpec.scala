@@ -513,6 +513,7 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
     When("reading block 1346406 using datasource")
     val df = spark.read.format("org.zuinnote.spark.ethereum.block").option("enrich", "true").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
+    
     Then("all fields should be readable trough Spark SQL")
     // check first if structure is correct
     assert("ethereumBlockHeader" == df.columns(0))

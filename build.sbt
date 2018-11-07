@@ -1,8 +1,5 @@
 import Keys._
 
-lazy val Spark200 = config("spark200") extend IntegrationTest describedAs s"Integration tests against Spark 2.0.0"
-lazy val Spark210 = config("spark210") extend IntegrationTest describedAs s"Integration tests against Spark 2.1.0"
-
 lazy val root = (project in file("."))
   .settings(
     organization := "com.github.zuinnote",
@@ -13,14 +10,14 @@ lazy val root = (project in file("."))
 
     scalaVersion := "2.11.8",
 
-    crossScalaVersions := Seq("2.10.6", "2.11.8"),
+    crossScalaVersions := Seq("2.11.8","2.12.7"),
 
     libraryDependencies ++= Seq(
       "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.2.0" % "compile",
 
       "org.bouncycastle"          % "bcprov-ext-jdk15on"             % "1.58"  % "compile",
-      "org.apache.spark"         %% "spark-core"                     % "2.0.0" % "provided",
-      "org.apache.spark"         %% "spark-sql"                      % "2.0.0" % "provided",
+      "org.apache.spark"         %% "spark-core"                     % "2.4.0" % "provided",
+      "org.apache.spark"         %% "spark-sql"                      % "2.4.0" % "provided",
       "org.apache.hadoop"         % "hadoop-client"                  % "2.7.0" % "provided",
       "org.apache.logging.log4j"  % "log4j-api"                      % "2.4.1" % "provided",
 
@@ -35,7 +32,7 @@ lazy val root = (project in file("."))
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
 
     scalacOptions ++= Seq(
-      "-target:jvm-1.7",
+      "-target:jvm-1.8",
       "-feature", "-deprecation", "-unchecked", "-explaintypes",
       "-encoding", "UTF-8", // yes, this is 2 args
       "-language:reflectiveCalls", "-language:implicitConversions", "-language:postfixOps", "-language:existentials",
@@ -44,10 +41,6 @@ lazy val root = (project in file("."))
       "-Ywarn-dead-code", "-Ywarn-inaccessible", "-Ywarn-numeric-widen", "-Yno-adapted-args", "-Ywarn-unused-import",
       "-Ywarn-unused"
     ),
-    scalacOptions --= // scalac 2.10 rejects some HK types under -Xfuture it seems..
-      (CrossVersion partialVersion scalaVersion.value collect {
-        case (2, 10) => List("-Ywarn-unused", "-Ywarn-unused-import", "-Ywarn-numeric-widen")
-      }).toList.flatten,
 
     javaOptions += "-Xmx3G",
 
@@ -57,19 +50,4 @@ lazy val root = (project in file("."))
   )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
-  .configs(Spark200, Spark210)
   .enablePlugins(JacocoItPlugin)
-  .settings(
-    inConfig(Spark200)(
-      libraryDependencies ++= Seq(
-        "org.apache.spark" %% "spark-core" % "2.0.1" % "it",
-        "org.apache.spark" %% "spark-sql"  % "2.0.1" % "it"
-      )
-    ),
-    inConfig(Spark210)(
-      libraryDependencies ++= Seq(
-        "org.apache.spark" %% "spark-core" % "2.1.0" % "it",
-        "org.apache.spark" %% "spark-sql"  % "2.1.0" % "it"
-      )
-    )
-  )

@@ -5,8 +5,8 @@ scala:
 script:
 - sbt ++$TRAVIS_SCALA_VERSION clean it:test
 # workaround codacy bug
-- mkdir -p target/scala-2.10/coverage-report
 - mkdir -p target/scala-2.11/coverage-report
+- mkdir -p target/scala-2.12/coverage-report
 - sbt ++$TRAVIS_SCALA_VERSION coverageReport
 - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage

@@ -38,7 +38,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
 libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.2.0"
 ```
 
-The library is currently published for Scala 2.10 and 2.11. It will be published for 2.12 once Spark supports it. 
+The library is currently published for Scala 2.10 and 2.11. Scala 2.12 requires that you use at least Spark 2.4.0 
 
 If you use Ethereum and the enrich functionality then you need the Bouncycastle dependency:
 ```

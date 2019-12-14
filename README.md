@@ -35,14 +35,14 @@ The following options are mapped to the following options of the HadoopCryptoLed
 
 # Setup
 ```
-libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.2.0"
+libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.2.1"
 ```
 
-The library is currently published for Scala 2.10 and 2.11. Scala 2.12 requires that you use at least Spark 2.4.0 
+The library is currently published for 2.11 and 2.12. Scala 2.12 requires that you use at least Spark 2.4.0 
 
 If you use Ethereum and the enrich functionality then you need the Bouncycastle dependency:
 ```
-libraryDependencies += "org.bouncycastle" %% "sbcprov-ext-jdk15on" % "1.58"
+libraryDependencies += "org.bouncycastle" %% "sbcprov-ext-jdk15on" % "1.64"
 ```
 ## Information Spark 2.0 and 2.1 BigInteger too large
 Spark 2.0 and Spark 2.1 have a bug (see https://issues.apache.org/jira/browse/SPARK-20341) that does not allow Big Integers with a precision large than 19. You may face those in the Ethereum blockchain. We recommend to use Spark 2.3 latest.

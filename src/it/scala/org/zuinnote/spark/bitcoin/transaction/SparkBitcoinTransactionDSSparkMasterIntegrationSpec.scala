@@ -31,10 +31,12 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hdfs.MiniDFSCluster
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+ import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import java.math.BigDecimal
 
-class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends AnyFlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
   private val master: String = "local[2]"
 //  private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"

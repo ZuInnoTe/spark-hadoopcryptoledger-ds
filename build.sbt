@@ -21,13 +21,14 @@ lazy val root = (project in file("."))
       "org.apache.hadoop"         % "hadoop-client"                  % "2.7.0" % "provided",
       "org.apache.logging.log4j"  % "log4j-api"                      % "2.4.1" % "provided",
 
-      "org.scalatest"            %% "scalatest"                      % "3.0.1" % "test,it",
+      "org.scalatest"            %% "scalatest"                      % "3.1.0" % "test,it",
 
       "javax.servlet"             % "javax.servlet-api"              % "3.0.1" % "it",
       "org.apache.hadoop"         % "hadoop-common"                  % "2.7.0" % "it" classifier "" classifier "tests",
       "org.apache.hadoop"         % "hadoop-hdfs"                    % "2.7.0" % "it" classifier "" classifier "tests",
       "org.apache.hadoop"         % "hadoop-minicluster"             % "2.7.0" % "it"
     ),
+
 
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
 
@@ -50,4 +51,28 @@ lazy val root = (project in file("."))
   )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
-  .enablePlugins(JacocoItPlugin)
+
+  artifact in (Compile, assembly) := {
+    val art = (artifact in (Compile, assembly)).value
+    art.withClassifier(Some(""))
+  }
+
+  addArtifact(artifact in (Compile, assembly), assembly)
+
+  assemblyShadeRules in assembly := Seq(
+     ShadeRule.rename("org.bouncycastle.**" -> "hadoopcryptoledger.shade.org.bouncycastle.@1").inAll
+  )
+  assemblyJarName in assembly := {
+       val newName = s"${name.value}_${scalaBinaryVersion.value}-${version.value}.jar"
+       newName
+  }
+
+  assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+
+  assemblyMergeStrategy in assembly :=  {
+      case PathList("META-INF/*.RSA", "META-INF/*.SF","META-INF/*.DSA") => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+       oldStrategy(x)
+
+  }

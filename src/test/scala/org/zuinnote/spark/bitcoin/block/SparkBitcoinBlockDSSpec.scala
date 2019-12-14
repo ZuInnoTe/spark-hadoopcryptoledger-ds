@@ -20,9 +20,10 @@
   */
 package org.zuinnote.spark.bitcoin.block
 
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
-
-class SparkBitcoinBlockDSSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+class SparkBitcoinBlockDSSpec extends AnyFlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
   override def beforeAll(): Unit = {
     super.beforeAll()

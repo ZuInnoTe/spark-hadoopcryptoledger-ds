@@ -30,11 +30,13 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hdfs.MiniDFSCluster
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+ import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.zuinnote.spark.bitcoin.model.{BitcoinBlock, BitcoinBlockWithAuxPOW, EnrichedBitcoinBlock, EnrichedBitcoinBlockWithAuxPOW}
 import java.math.BigDecimal
 
-class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
   private val master: String = "local[2]"
 //  private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"
@@ -621,7 +623,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends FlatSpec with Before
     When("reading scriptwitness block using datasource")
     val df = spark.read.format("org.zuinnote.spark.bitcoin.block").option("magic", "F9BEB4FE").option("readAuxPOW", "true").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
     Then("schema should be correct and number of transactions")
-    
+
     // check first if structure is correct
     assert("blockSize" == df.columns(0))
     assert("magicNo" == df.columns(1))

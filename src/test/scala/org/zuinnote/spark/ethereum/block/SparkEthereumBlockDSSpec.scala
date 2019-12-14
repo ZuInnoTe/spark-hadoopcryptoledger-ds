@@ -19,10 +19,10 @@
   *
   */
 package org.zuinnote.spark.ethereum.block
-
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
-
-class SparkEthereumBlockDSSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+class SparkEthereumBlockDSSpec extends AnyFlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
   override def beforeAll(): Unit = {
     super.beforeAll()
   }

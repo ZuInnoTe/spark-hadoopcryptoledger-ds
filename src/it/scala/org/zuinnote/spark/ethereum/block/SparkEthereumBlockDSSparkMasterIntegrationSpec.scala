@@ -32,11 +32,13 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hdfs.MiniDFSCluster
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+ import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.zuinnote.spark.ethereum.model.{EnrichedEthereumBlock, EthereumBlock}
 import java.math.BigDecimal
 
-class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+class SparkEthereumBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
 
   private val master: String = "local[2]"
 //  private val appName: String = "spark-hadoocryptoledger-ds-integrationtest"
@@ -513,7 +515,7 @@ class SparkEthereumBlockDSSparkMasterIntegrationSpec extends FlatSpec with Befor
     dfsCluster.getFileSystem().copyFromLocalFile(false, false, inputFile, DFS_INPUT_DIR)
     When("reading block 1346406 using datasource")
     val df = spark.read.format("org.zuinnote.spark.ethereum.block").option("enrich", "true").load(dfsCluster.getFileSystem().getUri.toString + DFS_INPUT_DIR_NAME)
-    
+
     Then("all fields should be readable trough Spark SQL")
     // check first if structure is correct
     assert("ethereumBlockHeader" == df.columns(0))

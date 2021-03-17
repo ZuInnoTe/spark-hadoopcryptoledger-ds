@@ -54,7 +54,7 @@ final case class EthereumBlockRelation(location: String,
     * returns EthereumBlocks as rows
     **/
   override def buildScan: RDD[Row] = {
-    val ethereumBlockRDD: RDD[(BytesWritable, common.EthereumBlock)] = readRawBlockRDD()
+    val ethereumBlockRDD: RDD[(BytesWritable, common.EthereumBlockWritable)] = readRawBlockRDD()
 
     if (enrich) {
       ethereumBlockRDD
@@ -67,7 +67,7 @@ final case class EthereumBlockRelation(location: String,
     }
   }
 
-  private def readRawBlockRDD(): RDD[(BytesWritable, common.EthereumBlock)] = {
+  private def readRawBlockRDD(): RDD[(BytesWritable, common.EthereumBlockWritable)] = {
     // create hadoopConf
     val hadoopConf = new Configuration()
     hadoopConf.set(AbstractEthereumRecordReader.CONF_MAXBLOCKSIZE, String.valueOf(maxBlockSize))
@@ -77,7 +77,7 @@ final case class EthereumBlockRelation(location: String,
       location,
       classOf[EthereumBlockFileInputFormat],
       classOf[BytesWritable],
-      classOf[common.EthereumBlock],
+      classOf[common.EthereumBlockWritable],
       hadoopConf
     )
   }

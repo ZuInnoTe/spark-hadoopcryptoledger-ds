@@ -21,7 +21,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Encoders, Row, SQLContext}
-import org.zuinnote.hadoop.bitcoin.format.common.{BitcoinBlock => RawBitcoinBlock}
+import org.zuinnote.hadoop.bitcoin.format.common.{BitcoinBlockWritable => RawBitcoinBlock}
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.model._
 

@@ -114,19 +114,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("transactions" == df.columns(9))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(285 == blockSize(0).getInt(0))
+    assert(285 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xD9.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(1 == version(0).getInt(0))
+    assert(1 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1231006505 == time(0).getInt(0))
+    assert(1231006505 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0xFF.toByte, 0xFF.toByte, 0x00.toByte, 0x1D.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(2083236893 == nonce(0).getInt(0))
+    assert(2083236893 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(1 == transactionCounter(0).getLong(0))
     val hashPrevBlock = df.select("hashPrevBlock").collect
@@ -142,7 +142,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val transactionsDFCount = transactionsDF.count
     assert(1 == transactionsDFCount)
     val transactionsVersion = transactionsDF.select("transactions.version").collect
-    assert(1 == transactionsVersion(0).getInt(0))
+    assert(1 == transactionsVersion(0).getLong(0))
     val inCounter = transactionsDF.select("transactions.inCounter").collect
     val inCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(inCounterExpected.deep == inCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -150,7 +150,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val outCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(outCounterExpected.deep == outCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
     val transactionsLockTime = transactionsDF.select("transactions.lockTime").collect
-    assert(0 == transactionsLockTime(0).getInt(0))
+    assert(0 == transactionsLockTime(0).getLong(0))
     val transactionsLOIDF = transactionsDF.select(explode(transactionsDF("transactions.listOfInputs")).alias("listOfInputs"))
     val prevTransactionHash = transactionsLOIDF.select("listOfInputs.prevTransactionHash").collect
     val prevTransactionHashExpected: Array[Byte] = Array(0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte)
@@ -212,19 +212,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("transactions" == df.columns(9))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(285 == blockSize(0).getInt(0))
+    assert(285 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xD9.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(1 == version(0).getInt(0))
+    assert(1 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1231006505 == time(0).getInt(0))
+    assert(1231006505 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0xFF.toByte, 0xFF.toByte, 0x00.toByte, 0x1D.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(2083236893 == nonce(0).getInt(0))
+    assert(2083236893 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(1 == transactionCounter(0).getLong(0))
     val hashPrevBlock = df.select("hashPrevBlock").collect
@@ -240,7 +240,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val transactionsDFCount = transactionsDF.count
     assert(1 == transactionsDFCount)
     val transactionsVersion = transactionsDF.select("transactions.version").collect
-    assert(1 == transactionsVersion(0).getInt(0))
+    assert(1 == transactionsVersion(0).getLong(0))
     val inCounter = transactionsDF.select("transactions.inCounter").collect
     val inCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(inCounterExpected.deep == inCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -248,7 +248,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val outCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(outCounterExpected.deep == outCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
     val transactionsLockTime = transactionsDF.select("transactions.lockTime").collect
-    assert(0 == transactionsLockTime(0).getInt(0))
+    assert(0 == transactionsLockTime(0).getLong(0))
     val transactionsLOIDF = transactionsDF.select(explode(transactionsDF("transactions.listOfInputs")).alias("listOfInputs"))
     val prevTransactionHash = transactionsLOIDF.select("listOfInputs.prevTransactionHash").collect
     val prevTransactionHashExpected: Array[Byte] = Array(0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte)
@@ -314,19 +314,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("transactions" == df.columns(9))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(285 == blockSize(0).getInt(0))
+    assert(285 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xD9.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(1 == version(0).getInt(0))
+    assert(1 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1231006505 == time(0).getInt(0))
+    assert(1231006505 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0xFF.toByte, 0xFF.toByte, 0x00.toByte, 0x1D.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(2083236893 == nonce(0).getInt(0))
+    assert(2083236893 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(1 == transactionCounter(0).getLong(0))
     val hashPrevBlock = df.select("hashPrevBlock").collect
@@ -347,7 +347,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert(currentTransactionHashExpected.deep == currentTransactionHash(0).get(0).asInstanceOf[Array[Byte]].deep)
 
     val transactionsVersion = transactionsDF.select("transactions.version").collect
-    assert(1 == transactionsVersion(0).getInt(0))
+    assert(1 == transactionsVersion(0).getLong(0))
     val inCounter = transactionsDF.select("transactions.inCounter").collect
     val inCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(inCounterExpected.deep == inCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -355,7 +355,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val outCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(outCounterExpected.deep == outCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
     val transactionsLockTime = transactionsDF.select("transactions.lockTime").collect
-    assert(0 == transactionsLockTime(0).getInt(0))
+    assert(0 == transactionsLockTime(0).getLong(0))
     val transactionsLOIDF = transactionsDF.select(explode(transactionsDF("transactions.listOfInputs")).alias("listOfInputs"))
     val prevTransactionHash = transactionsLOIDF.select("listOfInputs.prevTransactionHash").collect
     val prevTransactionHashExpected: Array[Byte] = Array(0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte)
@@ -417,19 +417,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("transactions" == df.columns(9))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(285 == blockSize(0).getInt(0))
+    assert(285 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xD9.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(1 == version(0).getInt(0))
+    assert(1 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1231006505 == time(0).getInt(0))
+    assert(1231006505 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0xFF.toByte, 0xFF.toByte, 0x00.toByte, 0x1D.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(2083236893 == nonce(0).getInt(0))
+    assert(2083236893 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(1 == transactionCounter(0).getLong(0))
     val hashPrevBlock = df.select("hashPrevBlock").collect
@@ -450,7 +450,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert(currentTransactionHashExpected.deep == currentTransactionHash(0).get(0).asInstanceOf[Array[Byte]].deep)
 
     val transactionsVersion = transactionsDF.select("transactions.version").collect
-    assert(1 == transactionsVersion(0).getInt(0))
+    assert(1 == transactionsVersion(0).getLong(0))
     val inCounter = transactionsDF.select("transactions.inCounter").collect
     val inCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(inCounterExpected.deep == inCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -458,7 +458,7 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val outCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(outCounterExpected.deep == outCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
     val transactionsLockTime = transactionsDF.select("transactions.lockTime").collect
-    assert(0 == transactionsLockTime(0).getInt(0))
+    assert(0 == transactionsLockTime(0).getLong(0))
     val transactionsLOIDF = transactionsDF.select(explode(transactionsDF("transactions.listOfInputs")).alias("listOfInputs"))
     val prevTransactionHash = transactionsLOIDF.select("listOfInputs.prevTransactionHash").collect
     val prevTransactionHashExpected: Array[Byte] = Array(0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte)
@@ -524,19 +524,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("transactions" == df.columns(9))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(999275 == blockSize(0).getInt(0))
+    assert(999275 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xD9.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(536870914 == version(0).getInt(0))
+    assert(536870914 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1503889880 == time(0).getInt(0))
+    assert(1503889880 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0xE9.toByte, 0x3C.toByte, 0x01.toByte, 0x18.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(184429655 == nonce(0).getInt(0))
+    assert(184429655 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(470 == transactionCounter(0).getLong(0))
     // validate transactions
@@ -584,22 +584,22 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     val nonce = df.select("nonce").collect
     // first block
     // validate block data
-    assert(1000031 == blockSize(0).getInt(0))
+    assert(1000031 == blockSize(0).getLong(0))
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
-    assert(536870912 == version(0).getInt(0))
-    assert(1503863706 == time(0).getInt(0))
+    assert(536870912 == version(0).getLong(0))
+    assert(1503863706 == time(0).getLong(0))
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
-    assert(-706531299 == nonce(0).getInt(0))
+    assert(-706531299 == nonce(0).getLong(0))
     assert(2191 == transactionCounter(0).getLong(0))
 
     // second block
     // validate block data
-    assert(999304 == blockSize(1).getInt(0))
+    assert(999304 == blockSize(1).getLong(0))
     assert(magicNoExpected.deep == magicNo(1).get(0).asInstanceOf[Array[Byte]].deep)
-    assert(536870912 == version(1).getInt(0))
-    assert(1503836377 == time(1).getInt(0))
+    assert(536870912 == version(1).getLong(0))
+    assert(1503836377 == time(1).getLong(0))
     assert(bitsExpected.deep == bits(1).get(0).asInstanceOf[Array[Byte]].deep)
-    assert(-566627396 == nonce(1).getInt(0))
+    assert(-566627396 == nonce(1).getLong(0))
     assert(2508 == transactionCounter(1).getLong(0))
     // check transactions
     val transactionsDF = df.select(explode(df("transactions")).alias("transactions"))
@@ -638,19 +638,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("auxPOW" == df.columns(10))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(3125 == blockSize(0).getInt(0))
+    assert(3125 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xFE.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(65796 == version(0).getInt(0))
+    assert(65796 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1506767051 == time(0).getInt(0))
+    assert(1506767051 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0x71.toByte, 0x63.toByte, 0x01.toByte, 0x18.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(0 == nonce(0).getInt(0))
+    assert(0 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(7 == transactionCounter(0).getLong(0))
     // validate transactions
@@ -690,19 +690,19 @@ class SparkBitcoinBlockDSSparkMasterIntegrationSpec extends AnyFlatSpec with Bef
     assert("auxPOW" == df.columns(10))
     // validate block data
     val blockSize = df.select("blockSize").collect
-    assert(3125 == blockSize(0).getInt(0))
+    assert(3125 == blockSize(0).getLong(0))
     val magicNo = df.select("magicNo").collect
     val magicNoExpected: Array[Byte] = Array(0xF9.toByte, 0xBE.toByte, 0xB4.toByte, 0xFE.toByte)
     assert(magicNoExpected.deep == magicNo(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(65796 == version(0).getInt(0))
+    assert(65796 == version(0).getLong(0))
     val time = df.select("time").collect
-    assert(1506767051 == time(0).getInt(0))
+    assert(1506767051 == time(0).getLong(0))
     val bits = df.select("bits").collect
     val bitsExpected: Array[Byte] = Array(0x71.toByte, 0x63.toByte, 0x01.toByte, 0x18.toByte)
     assert(bitsExpected.deep == bits(0).get(0).asInstanceOf[Array[Byte]].deep)
     val nonce = df.select("nonce").collect
-    assert(0 == nonce(0).getInt(0))
+    assert(0 == nonce(0).getLong(0))
     val transactionCounter = df.select("transactionCounter").collect
     assert(7 == transactionCounter(0).getLong(0))
     // validate transactions

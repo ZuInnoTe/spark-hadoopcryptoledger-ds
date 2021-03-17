@@ -32,9 +32,9 @@ final case class ScriptWitness(witnessScriptLength: Array[Byte], witnessScript: 
 
 final case class ScriptWitnessItem(stackItemCounter: Array[Byte], scriptWitnessList: Seq[ScriptWitness])
 
-final case class Transaction(version: Int, marker: Byte, flag: Byte, inCounter: Array[Byte], outCounter: Array[Byte],
+final case class Transaction(version: Long, marker: Byte, flag: Byte, inCounter: Array[Byte], outCounter: Array[Byte],
                              listOfInputs: Seq[Input], listOfOutputs: Seq[Output],
-                             listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Int) {
+                             listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Long) {
 
   private[bitcoin] def enriched(currentTransactionHash: Array[Byte]): EnrichedTransaction = {
     EnrichedTransaction(
@@ -44,13 +44,13 @@ final case class Transaction(version: Int, marker: Byte, flag: Byte, inCounter: 
   }
 }
 
-final case class SingleTransaction(currentTransactionHash: Array[Byte], version: Int, marker: Byte, flag: Byte,
+final case class SingleTransaction(currentTransactionHash: Array[Byte], version: Long, marker: Byte, flag: Byte,
                                    inCounter: Array[Byte], outCounter: Array[Byte], listOfInputs: Seq[Input],
                                    listOfOutputs: Seq[Output], listOfScriptWitnessItem: Seq[ScriptWitnessItem],
-                                   lockTime: Int)
+                                   lockTime: Long)
 
-final case class BitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
-                              nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
+final case class BitcoinBlock(blockSize: Long, magicNo: Array[Byte], version: Long, time: Long, bits: Array[Byte],
+                              nonce: Long, transactionCounter: Long, hashPrevBlock: Array[Byte],
                               hashMerkleRoot: Array[Byte], transactions: Seq[Transaction])
   extends CanAddAuxPOW {
 
@@ -68,18 +68,18 @@ final case class BitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int
   }
 }
 
-final case class BitcoinBlockWithAuxPOW(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int,
-                                        bits: Array[Byte], nonce: Int, transactionCounter: Long,
+final case class BitcoinBlockWithAuxPOW(blockSize: Long, magicNo: Array[Byte], version: Long, time: Long,
+                                        bits: Array[Byte], nonce: Long, transactionCounter: Long,
                                         hashPrevBlock: Array[Byte], hashMerkleRoot: Array[Byte],
                                         transactions: Seq[Transaction], auxPOW: AuxPOW)
 
-final case class EnrichedTransaction(version: Int, marker: Byte, flag: Byte, inCounter: Array[Byte],
+final case class EnrichedTransaction(version: Long, marker: Byte, flag: Byte, inCounter: Array[Byte],
                                      outCounter: Array[Byte], listOfInputs: Seq[Input], listOfOutputs: Seq[Output],
-                                     listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Int,
+                                     listOfScriptWitnessItem: Seq[ScriptWitnessItem], lockTime: Long,
                                      currentTransactionHash: Array[Byte])
 
-final case class EnrichedBitcoinBlock(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int, bits: Array[Byte],
-                                      nonce: Int, transactionCounter: Long, hashPrevBlock: Array[Byte],
+final case class EnrichedBitcoinBlock(blockSize: Long, magicNo: Array[Byte], version: Long, time: Long, bits: Array[Byte],
+                                      nonce: Long, transactionCounter: Long, hashPrevBlock: Array[Byte],
                                       hashMerkleRoot: Array[Byte], transactions: Seq[EnrichedTransaction])
   extends CanAddAuxPOW {
 
@@ -91,23 +91,23 @@ final case class EnrichedBitcoinBlock(blockSize: Int, magicNo: Array[Byte], vers
   }
 }
 
-final case class EnrichedBitcoinBlockWithAuxPOW(blockSize: Int, magicNo: Array[Byte], version: Int, time: Int,
-                                                bits: Array[Byte], nonce: Int, transactionCounter: Long,
+final case class EnrichedBitcoinBlockWithAuxPOW(blockSize: Long, magicNo: Array[Byte], version: Long, time: Long,
+                                                bits: Array[Byte], nonce: Long, transactionCounter: Long,
                                                 hashPrevBlock: Array[Byte], hashMerkleRoot: Array[Byte],
                                                 transactions: Seq[EnrichedTransaction], auxPOW: AuxPOW)
 
-final case class ParentBlockHeader(version: Int, previousBlockHash: Array[Byte], merkleRoot: Array[Byte], time: Int,
-                                   bits: Array[Byte], nonce: Int)
+final case class ParentBlockHeader(version: Long, previousBlockHash: Array[Byte], merkleRoot: Array[Byte], time: Long,
+                                   bits: Array[Byte], nonce: Long)
 
-final case class CoinbaseTransaction(version: Int, inCounter: Array[Byte], outCounter: Array[Byte],
-                                     listOfInputs: Seq[Input], listOfOutputs: Seq[Output], lockTime: Int)
+final case class CoinbaseTransaction(version: Long, inCounter: Array[Byte], outCounter: Array[Byte],
+                                     listOfInputs: Seq[Input], listOfOutputs: Seq[Output], lockTime: Long)
 
 final case class CoinbaseBranch(numberOfLinks: Array[Byte], links: Seq[Array[Byte]], branchSideBitmask: Array[Byte])
 
 final case class AuxBlockChainBranch(numberOfLinks: Array[Byte], links: Seq[Array[Byte]],
                                      branchSideBitmask: Array[Byte])
 
-final case class AuxPOW(version: Int, coinbaseTransaction: CoinbaseTransaction, parentBlockHeaderHash: Array[Byte],
+final case class AuxPOW(version: Long, coinbaseTransaction: CoinbaseTransaction, parentBlockHeaderHash: Array[Byte],
                         coinbaseBranch: CoinbaseBranch, auxBlockChainBranch: AuxBlockChainBranch,
                         parentBlockHeader: ParentBlockHeader)
 

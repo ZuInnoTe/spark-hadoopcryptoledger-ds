@@ -118,7 +118,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends AnyFlatSpec wi
       0x7F.toByte, 0xC8.toByte, 0x1B.toByte, 0xC3.toByte, 0x88.toByte, 0x8A.toByte, 0x51.toByte, 0x32.toByte, 0x3A.toByte, 0x9F.toByte, 0xB8.toByte, 0xAA.toByte, 0x4B.toByte, 0x1E.toByte, 0x5E.toByte, 0x4A.toByte)
     assert(currentTransactionHashExpected.deep == currentTransactionHash(0).get(0).asInstanceOf[Array[Byte]].deep)
     val version = df.select("version").collect
-    assert(1 == version(0).getInt(0))
+    assert(1 == version(0).getLong(0))
     val inCounter = df.select("inCounter").collect
     val inCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(inCounterExpected.deep == inCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
@@ -126,7 +126,7 @@ class SparkBitcoinTransactionDSSparkMasterIntegrationSpec extends AnyFlatSpec wi
     val outCounterExpected: Array[Byte] = Array(0x01.toByte)
     assert(outCounterExpected.deep == outCounter(0).get(0).asInstanceOf[Array[Byte]].deep)
     val transactionsLockTime = df.select("lockTime").collect
-    assert(0 == transactionsLockTime(0).getInt(0))
+    assert(0 == transactionsLockTime(0).getLong(0))
     val transactionsLOIDF = df.select(explode(df("listOfInputs")).alias("listOfInputs"))
     val prevTransactionHash = transactionsLOIDF.select("listOfInputs.prevTransactionHash").collect
     val prevTransactionHashExpected: Array[Byte] = Array(0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte, 0x00.toByte)

@@ -21,7 +21,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Encoders, Row, SQLContext}
-import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransaction
+import org.zuinnote.hadoop.bitcoin.format.common.BitcoinTransactionWritable
 import org.zuinnote.hadoop.bitcoin.format.mapreduce._
 import org.zuinnote.spark.bitcoin.model._
 
@@ -62,7 +62,7 @@ final case class BitcoinTransactionRelation(location: String,
       .map(Row.fromTuple)
   }
 
-  private def readRawTransactionRDD(): RDD[(BytesWritable, BitcoinTransaction)] = {
+  private def readRawTransactionRDD(): RDD[(BytesWritable, BitcoinTransactionWritable)] = {
     // create hadoopConf
     val hadoopConf = new Configuration()
     hadoopConf.set(AbstractBitcoinRecordReader.CONF_MAXBLOCKSIZE, String.valueOf(maxBlockSize))
@@ -74,7 +74,7 @@ final case class BitcoinTransactionRelation(location: String,
       location,
       classOf[BitcoinTransactionFileInputFormat],
       classOf[BytesWritable],
-      classOf[BitcoinTransaction],
+      classOf[BitcoinTransactionWritable],
       hadoopConf
     )
   }

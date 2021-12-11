@@ -6,22 +6,22 @@ lazy val root = (project in file("."))
 
     name := "spark-hadoopcryptoledger-ds",
 
-    version := "1.3.0",
+    version := "1.3.1",
 
     scalaVersion := "2.11.12",
 
     crossScalaVersions := Seq("2.11.12","2.12.10"),
 
     libraryDependencies ++= Seq(
-      "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.3.0" % "compile",
+      "com.github.zuinnote"       % "hadoopcryptoledger-fileformat"  % "1.3.1" % "compile",
 
-      "org.bouncycastle"          % "bcprov-ext-jdk15on"             % "1.68"  % "compile",
+      "org.bouncycastle"          % "bcprov-ext-jdk15on"             % "1.70"  % "compile",
       "org.apache.spark"         %% "spark-core"                     % "2.4.4" % "provided",
       "org.apache.spark"         %% "spark-sql"                      % "2.4.4" % "provided",
       "org.apache.hadoop"         % "hadoop-client"                  % "2.7.0" % "provided",
       "org.apache.logging.log4j"  % "log4j-api"                      % "2.14.0" % "provided",
 
-      "org.scalatest"            %% "scalatest"                      % "3.1.0" % "test,it",
+      "org.scalatest"            %% "scalatest"                      % "3.2.10" % "test,it",
 
       "javax.servlet"             % "javax.servlet-api"              % "3.0.1" % "it",
       "org.apache.hadoop"         % "hadoop-common"                  % "2.7.0" % "it" classifier "" classifier "tests",

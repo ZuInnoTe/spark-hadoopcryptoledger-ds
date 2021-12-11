@@ -35,7 +35,7 @@ The following options are mapped to the following options of the HadoopCryptoLed
 
 # Setup
 ```
-libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.3.0"
+libraryDependencies += "com.github.zuinnote" %% "spark-hadoopcryptoledger-ds" % "1.3.1"
 ```
 
 The library is currently published for 2.11 and 2.12. Scala 2.12 requires that you use at least Spark 2.4.0 

@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
       "org.apache.xbean" % "xbean-asm6-shaded" % "4.10" % "provided",
 
       "org.apache.hadoop"         % "hadoop-client"                  % "2.7.0" % "provided",
-      "org.apache.logging.log4j"  % "log4j-api"                      % "2.15.0" % "provided",
+      "org.apache.logging.log4j"  % "log4j-api"                      % "2.16.0" % "provided",
 
       "org.scalatest"            %% "scalatest"                      % "3.2.10" % "test,it",
 
